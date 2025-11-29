@@ -26,8 +26,8 @@ import lab.is.security.bd.entities.Role;
 import lab.is.security.bd.entities.RoleEnum;
 import lab.is.security.bd.entities.User;
 import lab.is.security.dto.request.LogoutRequestDto;
-import lab.is.security.dto.request.SignInRequestDto;
-import lab.is.security.dto.request.SignUpRequestDto;
+import lab.is.security.dto.request.LoginRequestDto;
+import lab.is.security.dto.request.RegisterRequestDto;
 import lab.is.security.dto.request.TokenRefreshRequestDto;
 import lab.is.security.dto.request.TokenRefreshResponseDto;
 import lab.is.security.dto.response.JwtResponseDto;
@@ -50,7 +50,7 @@ public class AuthorizationController {
     private final JwtUtils jwtUtils;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponseDto> authenticateUser(@Valid @RequestBody SignInRequestDto loginRequestDto) {
+    public ResponseEntity<JwtResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 loginRequestDto.getLogin(),
@@ -98,8 +98,8 @@ public class AuthorizationController {
             );
     }
 
-    @PostMapping("/sign-up")
-    public ResponseEntity<MessageResponseDto> registerUser(@Valid @RequestBody SignUpRequestDto signUpRequest) {
+    @PostMapping("/register")
+    public ResponseEntity<MessageResponseDto> register(@Valid @RequestBody RegisterRequestDto signUpRequest) {
         if (Boolean.TRUE.equals(userRepository.existsByLogin(signUpRequest.getLogin()))) {
             throw new ResourceIsAlreadyExistsException("Логин уже занят");
         }
