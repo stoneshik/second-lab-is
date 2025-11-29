@@ -1,0 +1,23 @@
+server:
+  port: "${IS_SERVICE_PORT}"
+
+spring:
+  main:
+    banner-mode: "off"
+  datasource:
+    own:
+      username: ${CONTAINER.USERNAME}
+      password: ${CONTAINER.PASSWORD}
+      url: ${CONTAINER.URL}
+  jpa:
+    generate-ddl: true
+    hibernate.ddl-auto: "update"
+    database-platform: "org.hibernate.dialect.PostgreSQLDialect"
+    properties:
+      javax:
+        persistence:
+          validation:
+            mode: "auto"
+  mvc:
+    pathmatch:
+      matching-strategy: "ant_path_matcher"

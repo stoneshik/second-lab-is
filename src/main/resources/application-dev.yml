@@ -1,0 +1,23 @@
+server:
+  port: "${IS_SERVICE_PORT}"
+
+spring:
+  main:
+    banner-mode: "off"
+  datasource:
+    url: "${IS_SERVICE_BD_URL}"
+    username: "${IS_SERVICE_BD_USERNAME}"
+    password: "${IS_SERVICE_BD_PASSWORD}"
+    driver-class-name: "org.postgresql.Driver"
+  jpa:
+    generate-ddl: true
+    hibernate.ddl-auto: "update"
+    database-platform: "org.hibernate.dialect.PostgreSQLDialect"
+    properties:
+      javax:
+        persistence:
+          validation:
+            mode: "auto"
+  mvc:
+    pathmatch:
+      matching-strategy: "ant_path_matcher"
