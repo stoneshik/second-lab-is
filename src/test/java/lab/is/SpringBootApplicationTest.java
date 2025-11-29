@@ -27,6 +27,8 @@ import lab.is.bd.entities.MusicBand;
 import lab.is.bd.entities.MusicGenre;
 import lab.is.bd.entities.Nomination;
 import lab.is.bd.entities.Studio;
+import lab.is.security.bd.entities.Role;
+import lab.is.security.bd.entities.RoleEnum;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
@@ -91,6 +93,12 @@ abstract class SpringBootApplicationTest {
     }
 
     protected void createEntitiesInDb() {
+        Role userRole = Role.builder().name(RoleEnum.ROLE_USER).build();
+        Role adminRole = Role.builder().name(RoleEnum.ROLE_ADMIN).build();
+
+        entityManager.persist(userRole);
+        entityManager.persist(adminRole);
+
         Coordinates coordinates1 = Coordinates.builder()
             .x(1.0f)
             .y(2)
