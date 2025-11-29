@@ -1,4 +1,4 @@
-package lab.controllers;
+package lab.is.controllers;
 
 import java.util.HashSet;
 import java.util.List;

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpServerErrorException.InternalServerError;
 
+import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lab.is.dto.responses.ErrorMessageResponseDto;
@@ -31,15 +32,6 @@ public class ExceptionHandlerController {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public ErrorMessageResponseDto handleException(NotFoundException e) {
-        return ErrorMessageResponseDto.builder()
-            .timestamp(new Date())
-            .message(e.getMessage())
-            .build();
-    }
-
-    @ExceptionHandler(ResourceIsAlreadyExistsException.class)
-    @ResponseStatus(value = HttpStatus.CONFLICT)
-    public ErrorMessageResponseDto handleException(ResourceIsAlreadyExistsException e) {
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message(e.getMessage())
@@ -64,6 +56,15 @@ public class ExceptionHandlerController {
             .build();
     }
 
+    @ExceptionHandler(ResourceIsAlreadyExistsException.class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    public ErrorMessageResponseDto handleException(ResourceIsAlreadyExistsException e) {
+        return ErrorMessageResponseDto.builder()
+            .timestamp(new Date())
+            .message(e.getMessage())
+            .build();
+    }
+
     @ExceptionHandler(NestedObjectIsUsedException.class)
     @ResponseStatus(value = HttpStatus.CONFLICT)
     public ErrorMessageResponseDto handleException(NestedObjectIsUsedException e) {
@@ -79,6 +80,15 @@ public class ExceptionHandlerController {
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message(e.getMessage())
+            .build();
+    }
+
+    @ExceptionHandler(OptimisticLockException.class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    public ErrorMessageResponseDto handleException(OptimisticLockException e) {
+        return ErrorMessageResponseDto.builder()
+            .timestamp(new Date())
+            .message("Объект изменен другим пользователем")
             .build();
     }
 
