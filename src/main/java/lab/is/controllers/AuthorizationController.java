@@ -67,13 +67,13 @@ public class AuthorizationController {
             .toList();
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
         return ResponseEntity.ok(
-            new JwtResponseDto(
-                jwt,
-                refreshToken.getToken(),
-                userDetails.getId(),
-                userDetails.getUsername(),
-                roles
-            )
+            JwtResponseDto.builder()
+                .token(jwt)
+                .refreshToken(refreshToken.getToken())
+                .id(userDetails.getId())
+                .username(userDetails.getUsername())
+                .roles(roles)
+                .build()
         );
     }
 
@@ -86,7 +86,12 @@ public class AuthorizationController {
             .map(RefreshToken::getUser)
             .map(user -> {
                 String token = jwtUtils.generateTokenFromUsername(user.getLogin());
-                return ResponseEntity.ok(new TokenRefreshResponseDto(token, requestRefreshToken));
+                return ResponseEntity.ok(
+                    TokenRefreshResponseDto.builder()
+                        .accessToken(token)
+                        .refreshToken(requestRefreshToken)
+                        .build()
+                );
             })
             .orElseThrow(() ->
                 new TokenRefreshException("Токен обновления не в базе данных!")
@@ -98,10 +103,10 @@ public class AuthorizationController {
         if (Boolean.TRUE.equals(userRepository.existsByLogin(signUpRequest.getLogin()))) {
             throw new ResourceIsAlreadyExistsException("Логин уже занят");
         }
-        User user = new User(
-            signUpRequest.getLogin(),
-            encoder.encode(signUpRequest.getPassword())
-        );
+        User user = User.builder()
+            .login(signUpRequest.getLogin())
+            .password(encoder.encode(signUpRequest.getPassword()))
+            .build();
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
         if (strRoles == null) {

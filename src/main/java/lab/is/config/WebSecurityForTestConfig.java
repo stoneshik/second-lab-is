@@ -21,12 +21,12 @@ import lab.is.security.jwt.JwtUtils;
 import lab.is.security.services.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 
-@Profile({"dev", "default"})
+@Profile("test")
 @Configuration
 @ComponentScan
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class WebSecurityConfig {
+public class WebSecurityForTestConfig {
     private final AuthEntryPointJwt unauthorizedHandler;
     private final JwtUtils jwtUtils;
     private final UserDetailsServiceImpl userDetailsService;
@@ -60,16 +60,8 @@ public class WebSecurityConfig {
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/",
-                    "/login",
-                    "/register",
-                    "/index.html",
-                    "/favicon.ico",
-                    "/assets/**",
-                    "/auth/**"
-                ).permitAll()
-                .anyRequest().authenticated()
+                //.requestMatchers().authenticated()
+                .anyRequest().permitAll()
             );
         http.addFilterBefore(
             authenticationJwtTokenFilter(),

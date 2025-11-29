@@ -26,11 +26,12 @@ public class RefreshTokenService {
     }
 
     public RefreshToken createRefreshToken(Long userId) {
-        RefreshToken refreshToken = new RefreshToken();
         User user = userService.loadUserById(userId);
-        refreshToken.setUser(user);
-        refreshToken.setExpiryDate(Instant.now().plusMillis(tokenProperties.getExpireTime()));
-        refreshToken.setToken(UUID.randomUUID().toString());
+        RefreshToken refreshToken = RefreshToken.builder()
+            .user(user)
+            .expiryDate(Instant.now().plusMillis(tokenProperties.getExpireTime()))
+            .token(UUID.randomUUID().toString())
+            .build();
         refreshToken = refreshTokenRepository.save(refreshToken);
         return refreshToken;
     }

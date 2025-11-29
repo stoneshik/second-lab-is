@@ -19,12 +19,16 @@ import lab.is.repositories.CoordinatesRepository;
 import lab.is.repositories.MusicBandRepository;
 import lab.is.repositories.NominationRepository;
 import lab.is.repositories.StudioRepository;
+import lab.is.security.bd.entities.Role;
+import lab.is.security.bd.entities.RoleEnum;
+import lab.is.security.repositories.RoleRepository;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @Profile("dev")
 @RequiredArgsConstructor
 public class DatabaseInitializer implements CommandLineRunner {
+    private final RoleRepository roleRepository;
     private final CoordinatesRepository coordinatesRepository;
     private final AlbumRepository albumRepository;
     private final StudioRepository studioRepository;
@@ -35,6 +39,11 @@ public class DatabaseInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         if (musicBandRepository.count() > 0) return;
+
+        Role userRole = Role.builder().name(RoleEnum.ROLE_USER).build();
+        Role adminRole = Role.builder().name(RoleEnum.ROLE_ADMIN).build();
+        roleRepository.save(userRole);
+        roleRepository.save(adminRole);
 
         Coordinates c1 = Coordinates.builder().x(10.0f).y(20).build();
         Coordinates c2 = Coordinates.builder().x(-5.2f).y(30).build();
