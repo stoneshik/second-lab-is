@@ -58,7 +58,15 @@ public class WebSecurityConfig {
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers(
+                    "/",
+                    "/login",
+                    "/register",
+                    "/index.html",
+                    "/favicon.ico",
+                    "/assets/**",
+                    "/auth/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             );
         http.addFilterBefore(

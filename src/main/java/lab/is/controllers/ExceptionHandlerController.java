@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -104,6 +105,15 @@ public class ExceptionHandlerController {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public ErrorMessageResponseDto handleException(AccessDeniedException e) {
+        return ErrorMessageResponseDto.builder()
+            .timestamp(new Date())
+            .message(e.getMessage())
+            .build();
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public ErrorMessageResponseDto handleException(AuthenticationException e) {
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message(e.getMessage())
