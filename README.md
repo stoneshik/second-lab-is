@@ -19,6 +19,11 @@ IS_SERVICE_PORT=8080
 IS_SERVICE_BD_USERNAME=postgres
 IS_SERVICE_BD_PASSWORD=admin
 IS_SERVICE_BD_URL=jdbc:postgresql://localhost:5432/is_service
+
+## Token settings
+TOKEN_SECRET_KEY=a6c79a27049109e472b246b5dfbe08aedff1e9e2259597e54032dbad4958d4ad
+TOKEN_EXPIRE_TIME=3600000
+TOKEN_REFRESH_TIME=86400000
 ```
 
 Подключение к серверу:<br>

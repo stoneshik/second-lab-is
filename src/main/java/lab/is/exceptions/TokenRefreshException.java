@@ -3,9 +3,9 @@ package lab.is.exceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class ObjectNotFoundException extends NotFoundException {
-    public ObjectNotFoundException(String message) {
+@ResponseStatus(value = HttpStatus.FORBIDDEN)
+public class TokenRefreshException extends RuntimeException {
+    public TokenRefreshException(String message) {
         super(message);
     }
 }

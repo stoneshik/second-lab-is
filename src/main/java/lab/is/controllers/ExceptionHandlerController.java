@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,14 +21,25 @@ import lab.is.dto.responses.ErrorMessageResponseDto;
 import lab.is.exceptions.IncorrectDtoInRequestException;
 import lab.is.exceptions.NestedObjectIsUsedException;
 import lab.is.exceptions.NestedObjectNotFoundException;
-import lab.is.exceptions.ObjectNotFoundException;
+import lab.is.exceptions.NotFoundException;
+import lab.is.exceptions.ResourceIsAlreadyExistsException;
+import lab.is.exceptions.TokenRefreshException;
 import lab.is.exceptions.ValueOverflowException;
 
 @RestControllerAdvice
 public class ExceptionHandlerController {
-    @ExceptionHandler(ObjectNotFoundException.class)
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public ErrorMessageResponseDto handleException(ObjectNotFoundException e) {
+    public ErrorMessageResponseDto handleException(NotFoundException e) {
+        return ErrorMessageResponseDto.builder()
+            .timestamp(new Date())
+            .message(e.getMessage())
+            .build();
+    }
+
+    @ExceptionHandler(ResourceIsAlreadyExistsException.class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    public ErrorMessageResponseDto handleException(ResourceIsAlreadyExistsException e) {
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message(e.getMessage())
@@ -64,6 +76,24 @@ public class ExceptionHandlerController {
     @ExceptionHandler(ValueOverflowException.class)
     @ResponseStatus(value = HttpStatus.CONFLICT)
     public ErrorMessageResponseDto handleException(ValueOverflowException e) {
+        return ErrorMessageResponseDto.builder()
+            .timestamp(new Date())
+            .message(e.getMessage())
+            .build();
+    }
+
+    @ExceptionHandler(TokenRefreshException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public ErrorMessageResponseDto handleException(TokenRefreshException e) {
+        return ErrorMessageResponseDto.builder()
+            .timestamp(new Date())
+            .message(e.getMessage())
+            .build();
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public ErrorMessageResponseDto handleException(AccessDeniedException e) {
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message(e.getMessage())
