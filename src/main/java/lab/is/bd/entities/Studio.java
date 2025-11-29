@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,6 +39,9 @@ public class Studio {
     @SequenceGenerator(name = "studio_seq", sequenceName = "studio_seq", allocationSize = 1)
     @Column(name = "id", nullable = false, unique = true)
     private Long id;
+
+    @Version
+    private Long version;
 
     @ToString.Include
     @NotNull(message = "{not-null}")

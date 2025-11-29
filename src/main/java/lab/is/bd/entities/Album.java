@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,9 @@ public class Album {
     @SequenceGenerator(name = "album_seq", sequenceName = "album_seq", allocationSize = 1)
     @Column(name = "id", nullable = false, unique = true)
     private Long id;
+
+    @Version
+    private Long version;
 
     @ToString.Include
     @NotBlank(message = "{not-blank}")

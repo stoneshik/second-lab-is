@@ -20,6 +20,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -47,6 +48,9 @@ public class Nomination {
     @SequenceGenerator(name = "nominations_seq", sequenceName = "nominations_seq", allocationSize = 1)
     @Column(name = "id", nullable = false, unique = true)
     private Long id;
+
+    @Version
+    private Long version;
 
     @Valid
     @NotNull(message = "{not-null}")

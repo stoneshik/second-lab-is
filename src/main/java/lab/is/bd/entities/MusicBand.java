@@ -18,6 +18,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -47,6 +48,9 @@ public class MusicBand {
     @SequenceGenerator(name = "music_band_seq", sequenceName = "music_band_seq", allocationSize = 1)
     @Column(name = "id", nullable = false, unique = true)
     private Long id;
+
+    @Version
+    private Long version;
 
     @ToString.Include
     @NotBlank(message = "{not-blank}")
