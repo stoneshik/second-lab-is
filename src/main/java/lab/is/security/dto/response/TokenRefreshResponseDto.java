@@ -1,4 +1,4 @@
-package lab.is.security.dto.request;
+package lab.is.security.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
