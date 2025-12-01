@@ -25,4 +25,12 @@ public class UserService {
                 () -> new UserNotFoundException("Id пользователя не найден: " + userId)
             );
     }
+
+    public User loadUserByLogin(String login) {
+        return userRepository
+            .findByLogin(login)
+            .orElseThrow(
+                () -> new UserNotFoundException("Логин пользователя не найден: " + login)
+            );
+    }
 }

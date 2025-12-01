@@ -32,6 +32,10 @@ public class RefreshTokenService {
             .expiryDate(Instant.now().plusMillis(tokenProperties.getExpireTime()))
             .token(UUID.randomUUID().toString())
             .build();
+        Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findRefreshTokenByUserId(userId);
+        if (foundRefreshToken.isPresent()) {
+            refreshTokenRepository.delete(foundRefreshToken.get());
+        }
         refreshToken = refreshTokenRepository.save(refreshToken);
         return refreshToken;
     }
@@ -47,8 +51,14 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public int deleteByUserId(Long userId) {
+    public void deleteByUserId(Long userId) {
         User user = userService.loadUserById(userId);
-        return refreshTokenRepository.deleteByUser(user);
+        refreshTokenRepository.deleteByUserId(user.getId());
+    }
+
+    @Transactional
+    public void deleteByLogin(String login) {
+        User user = userService.loadUserByLogin(login);
+        refreshTokenRepository.deleteByUserId(user.getId());
     }
 }

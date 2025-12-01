@@ -18,7 +18,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import lab.is.security.jwt.AuthEntryPointJwt;
 import lab.is.security.jwt.AuthTokenFilter;
 import lab.is.security.jwt.JwtUtils;
+import lab.is.security.repositories.RefreshTokenRepository;
 import lab.is.security.services.UserDetailsServiceImpl;
+import lab.is.security.services.UserService;
 import lombok.RequiredArgsConstructor;
 
 @Profile("test")
@@ -30,10 +32,12 @@ public class WebSecurityForTestConfig {
     private final AuthEntryPointJwt unauthorizedHandler;
     private final JwtUtils jwtUtils;
     private final UserDetailsServiceImpl userDetailsService;
+    private final UserService userService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Bean
     AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter(jwtUtils, userDetailsService);
+        return new AuthTokenFilter(jwtUtils, userDetailsService, userService, refreshTokenRepository);
     }
 
     @Bean

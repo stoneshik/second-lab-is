@@ -9,7 +9,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,7 +28,6 @@ import lab.is.security.bd.entities.Role;
 import lab.is.security.bd.entities.RoleEnum;
 import lab.is.security.bd.entities.User;
 import lab.is.security.dto.request.LoginRequestDto;
-import lab.is.security.dto.request.LogoutRequestDto;
 import lab.is.security.dto.request.RegisterRequestDto;
 import lab.is.security.dto.request.TokenRefreshRequestDto;
 import lab.is.security.dto.response.JwtResponseDto;
@@ -135,8 +136,12 @@ public class AuthorizationController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<MessageResponseDto> logoutUser(@Valid @RequestBody LogoutRequestDto logOutRequest) {
-        refreshTokenService.deleteByUserId(logOutRequest.getUserId());
-        return ResponseEntity.ok(new MessageResponseDto("Пользователь успешно вышел!"));
+    public ResponseEntity<MessageResponseDto> logoutUser(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails != null) {
+            refreshTokenService.deleteByLogin(userDetails.getUsername());
+            SecurityContextHolder.clearContext();
+            return ResponseEntity.ok(new MessageResponseDto("Пользователь успешно вышел!"));
+        }
+        throw new TokenRefreshException("Пользователь не авторизован");
     }
 }
