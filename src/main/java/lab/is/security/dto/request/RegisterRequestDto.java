@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RegisterRequestDto {
     @NotBlank(message = "{not-blank}")
+    @Size(min = 4, max = 40, message = "{size.login}")
     private String login;
     private Set<String> role;
 
