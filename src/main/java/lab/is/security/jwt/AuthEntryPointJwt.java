@@ -53,6 +53,6 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
     }
 
     private void redirectToLogin(HttpServletResponse response) throws IOException {
-        response.sendRedirect("/login?redirect=&error=unauthorized");
+        response.sendRedirect("/login");
     }
 }

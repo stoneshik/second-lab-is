@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import lab.is.dto.responses.MessageResponseDto;
 import lab.is.exceptions.ResourceIsAlreadyExistsException;
 import lab.is.exceptions.RoleNotFoundException;
 import lab.is.exceptions.TokenRefreshException;
@@ -100,7 +100,7 @@ public class AuthorizationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<MessageResponseDto> register(@Valid @RequestBody RegisterRequestDto signUpRequest) {
+    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequestDto signUpRequest) {
         if (Boolean.TRUE.equals(userRepository.existsByLogin(signUpRequest.getLogin()))) {
             throw new ResourceIsAlreadyExistsException("Логин уже занят");
         }
@@ -132,16 +132,16 @@ public class AuthorizationController {
         }
         user.setRoles(roles);
         userRepository.save(user);
-        return ResponseEntity.ok(new MessageResponseDto("Пользователь успешно зарегистрирован!"));
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<MessageResponseDto> logoutUser(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails != null) {
-            refreshTokenService.deleteByLogin(userDetails.getUsername());
-            SecurityContextHolder.clearContext();
-            return ResponseEntity.ok(new MessageResponseDto("Пользователь успешно вышел!"));
+    public ResponseEntity<Void> logoutUser(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new TokenRefreshException("Пользователь не авторизован");
         }
-        throw new TokenRefreshException("Пользователь не авторизован");
+        refreshTokenService.deleteByLogin(userDetails.getUsername());
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.noContent().build();
     }
 }

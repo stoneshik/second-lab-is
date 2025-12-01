@@ -15,11 +15,11 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RegisterRequestDto {
     @NotBlank(message = "{not-blank}")
-    @Size(min = 4, max = 40, message = "{size.login}")
+    @Size(min = 4, max = 20, message = "{size.login}")
     private String login;
     private Set<String> role;
 
     @NotBlank(message = "{not-blank}")
-    @Size(min = 4, max = 40, message = "{size.password}")
+    @Size(min = 4, max = 30, message = "{size.password}")
     private String password;
 }
