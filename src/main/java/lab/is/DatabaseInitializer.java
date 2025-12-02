@@ -2,6 +2,7 @@ package lab.is;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -21,7 +22,9 @@ import lab.is.repositories.NominationRepository;
 import lab.is.repositories.StudioRepository;
 import lab.is.security.bd.entities.Role;
 import lab.is.security.bd.entities.RoleEnum;
+import lab.is.security.bd.entities.User;
 import lab.is.security.repositories.RoleRepository;
+import lab.is.security.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -29,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DatabaseInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
     private final CoordinatesRepository coordinatesRepository;
     private final AlbumRepository albumRepository;
     private final StudioRepository studioRepository;
@@ -44,6 +48,9 @@ public class DatabaseInitializer implements CommandLineRunner {
         Role adminRole = Role.builder().name(RoleEnum.ROLE_ADMIN).build();
         roleRepository.save(userRole);
         roleRepository.save(adminRole);
+
+        User admin = User.builder().login("admin").password("first").roles(Set.of(userRole, adminRole)).build();
+        userRepository.save(admin);
 
         Coordinates c1 = Coordinates.builder().x(10.0f).y(20).build();
         Coordinates c2 = Coordinates.builder().x(-5.2f).y(30).build();

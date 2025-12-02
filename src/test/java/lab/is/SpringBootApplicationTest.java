@@ -112,7 +112,7 @@ abstract class SpringBootApplicationTest {
 
         InsertionHistory insertionHistory1 = InsertionHistory.builder().endDate(LocalDateTime.now())
             .status(InsertionHistoryStatus.SUCCESS).user(user1).numberObjects(3L).build();
-        InsertionHistory insertionHistory2 = InsertionHistory.builder()
+        InsertionHistory insertionHistory2 = InsertionHistory.builder().endDate(LocalDateTime.now())
             .status(InsertionHistoryStatus.FAILED).user(admin).build();
         InsertionHistory insertionHistory3 = InsertionHistory.builder()
             .status(InsertionHistoryStatus.PENDING).user(user1).build();

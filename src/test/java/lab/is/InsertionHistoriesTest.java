@@ -61,7 +61,7 @@ class InsertionHistoriesTest extends SpringBootApplicationTest {
 
                 jsonPath("$.insertionHistories[1].id").value(2L),
                 jsonPath("$.insertionHistories[1].creationDate").exists(),
-                jsonPath("$.insertionHistories[1].endDate").doesNotExist(),
+                jsonPath("$.insertionHistories[1].endDate").exists(),
                 jsonPath("$.insertionHistories[1].status").value("FAILED"),
                 jsonPath("$.insertionHistories[1].login").value("admin"),
                 jsonPath("$.insertionHistories[1].numberObjects").doesNotExist(),
