@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lab.is.dto.responses.coordinates.WrapperListCoordinatesResponseDto;
+import lab.is.dto.responses.insertion.history.WrapperListInsertionHistoriesResponseDto;
 import lab.is.services.insertion.history.InsertionHistoryService;
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +20,7 @@ public class InsertionHistoryController {
     private final InsertionHistoryService insertionHistoryService;
 
     @GetMapping
-    public ResponseEntity<WrapperListCoordinatesResponseDto> getAll(
+    public ResponseEntity<WrapperListInsertionHistoriesResponseDto> getAll(
         @RequestParam(required = true) Long userId,
         @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {

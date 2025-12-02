@@ -9,4 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InsertionHistoryService {
     private final InsertionHistoryRepository insertionHistoryRepository;
+
+    public 
 }
