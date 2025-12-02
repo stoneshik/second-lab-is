@@ -14,6 +14,15 @@ spring:
     hibernate.ddl-auto: "update"
     database-platform: "org.hibernate.dialect.PostgreSQLDialect"
     properties:
+      hibernate:
+        '[jdbc.batch_size]': 100
+        '[order_inserts]': true
+        '[order_updates]': true
+        '[jdbc.batch_versioned_data]': true
+        # Оптимизация для массовой вставки
+        '[cache.use_second_level_cache]': false
+        '[cache.use_query_cache]': false
+        '[jdbc.fetch_size]': 1000
       javax:
         persistence:
           validation:

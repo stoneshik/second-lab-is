@@ -3,6 +3,7 @@ package lab.is.bd.entities;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -59,7 +60,7 @@ public class MusicBand {
 
     @Valid
     @NotNull(message = "{not-null}")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(
         name = "coordinates_id",
         nullable = false,
@@ -93,7 +94,7 @@ public class MusicBand {
     private String description;
 
     @Valid
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(
         name = "best_album_id",
         foreignKey = @ForeignKey(ConstraintMode.CONSTRAINT)
@@ -111,7 +112,7 @@ public class MusicBand {
     private LocalDate establishmentDate;
 
     @Valid
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(
         name = "studio_id",
         foreignKey = @ForeignKey(ConstraintMode.CONSTRAINT)
