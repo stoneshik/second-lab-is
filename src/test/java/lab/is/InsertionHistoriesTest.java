@@ -1,6 +1,7 @@
 package lab.is;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -46,56 +47,99 @@ class InsertionHistoriesTest extends SpringBootApplicationTest {
             .andExpectAll(
                 status().isOk(),
                 content().contentTypeCompatibleWith("application/json"),
+                jsonPath("$.totalElements").value(3L),
+                jsonPath("$.totalPages").value(1),
+                jsonPath("$.currentPage").value(0),
+                jsonPath("$.pageSize").value(3),
+
+                jsonPath("$.insertionHistories[0].id").value(1L),
+                jsonPath("$.insertionHistories[0].creationDate").exists(),
+                jsonPath("$.insertionHistories[0].endDate").exists(),
+                jsonPath("$.insertionHistories[0].status").value("SUCCESS"),
+                jsonPath("$.insertionHistories[0].login").value("first"),
+                jsonPath("$.insertionHistories[0].numberObjects").value(3L),
+
+                jsonPath("$.insertionHistories[1].id").value(2L),
+                jsonPath("$.insertionHistories[1].creationDate").exists(),
+                jsonPath("$.insertionHistories[1].endDate").doesNotExist(),
+                jsonPath("$.insertionHistories[1].status").value("FAILED"),
+                jsonPath("$.insertionHistories[1].login").value("admin"),
+                jsonPath("$.insertionHistories[1].numberObjects").doesNotExist(),
+
+                jsonPath("$.insertionHistories[2].id").value(3L),
+                jsonPath("$.insertionHistories[2].creationDate").exists(),
+                jsonPath("$.insertionHistories[2].endDate").doesNotExist(),
+                jsonPath("$.insertionHistories[2].status").value("PENDING"),
+                jsonPath("$.insertionHistories[2].login").value("first"),
+                jsonPath("$.insertionHistories[2].numberObjects").doesNotExist()
+            );
+    }
+
+    @Test
+    void getEmptyListInsertionHistoriesByUserId_ReturnsResponseWithStatusOk() throws Exception {
+        setupDb();
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
+            .get("/api/v1/insertion/histories")
+            .param("user", "3");
+        mockMvc
+            .perform(requestBuilder)
+            .andExpectAll(
+                status().isOk(),
+                content().contentTypeCompatibleWith("application/json"),
                 content().json("""
                     {
-                        "totalElements": 3,
-                        "totalPages": 1,
+                        "totalElements": 0,
+                        "totalPages": 0,
                         "currentPage": 0,
-                        "pageSize": 3,
-                        "insertionHistories": [
-                            {
-                                "id": 1,
-                                "status": "SUCCESS",
-                                "login": "first",
-                                "numberObjects": 3
-                            },
-                            {
-                                "id": 2,
-                                "status": "FAILED",
-                                "login": "admin"
-                            },
-                            {
-                                "id": 3,
-                                "status": "PENDING",
-                                "login": "first"
-                            }
-                        ]
+                        "pageSize": 0,
+                        "insertionHistories": []
                     }
                 """)
             );
     }
 
     @Test
-    void getInsertionHistoryById_ReturnsResponseWithStatusOk() throws Exception {
+    void getListInsertionHistoriesByUserId_ReturnsResponseWithStatusOk() throws Exception {
         setupDb();
-        final Long id = 1L;
-        checkEntityExistByIdAndEqualExpectedJsonString(
-            id,
-            """
-            {
-                "id": 1,
-                "status": "SUCCESS",
-                "login": "first",
-                "numberObjects": 3
-            }
-            """
-        );
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
+            .get("/api/v1/insertion/histories")
+            .param("user", "1");
+        mockMvc
+            .perform(requestBuilder)
+            .andExpectAll(
+                status().isOk(),
+                content().contentTypeCompatibleWith("application/json"),
+                jsonPath("$.totalElements").value(3L),
+                jsonPath("$.totalPages").value(1),
+                jsonPath("$.currentPage").value(0),
+                jsonPath("$.pageSize").value(3),
+
+                jsonPath("$.insertionHistories[0].id").value(1L),
+                jsonPath("$.insertionHistories[0].creationDate").exists(),
+                jsonPath("$.insertionHistories[0].endDate").exists(),
+                jsonPath("$.insertionHistories[0].status").value("SUCCESS"),
+                jsonPath("$.insertionHistories[0].login").value("first"),
+                jsonPath("$.insertionHistories[0].numberObjects").value(3L),
+
+                jsonPath("$.insertionHistories[1].id").value(3L),
+                jsonPath("$.insertionHistories[1].creationDate").exists(),
+                jsonPath("$.insertionHistories[1].endDate").doesNotExist(),
+                jsonPath("$.insertionHistories[1].status").value("PENDING"),
+                jsonPath("$.insertionHistories[1].login").value("first"),
+                jsonPath("$.insertionHistories[1].numberObjects").doesNotExist()
+            );
     }
 
     @Test
-    void getInsertionHistoryById_ReturnsResponseWithStatusNotFound() throws Exception {
+    void getListInsertionHistoriesByUserId_ReturnsResponseWithStatusNotFound() throws Exception {
         setupDb();
-        final Long id = 100L;
-        checkEntityNotExistsById(id);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
+            .get("/api/v1/insertion/histories")
+            .param("user", "4");
+        mockMvc
+            .perform(requestBuilder)
+            .andExpectAll(
+                status().isNotFound()
+            );
     }
 }
