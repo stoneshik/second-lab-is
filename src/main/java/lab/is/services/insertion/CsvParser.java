@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 
 import lab.is.bd.entities.Album;
 import lab.is.bd.entities.Coordinates;
+import lab.is.bd.entities.InsertionHistory;
 import lab.is.bd.entities.MusicBand;
 import lab.is.bd.entities.MusicGenre;
 import lab.is.bd.entities.Studio;
@@ -19,50 +20,70 @@ public class CsvParser {
 
     private CsvParser() {}
 
-    public static MusicBand convertRecordToEntity(CSVRecord csvRecord, long recordNumber) {
+    public static MusicBand convertRecordToEntity(
+        CSVRecord csvRecord,
+        long recordNumber,
+        InsertionHistory insertionHistory
+    ) {
         return MusicBand.builder()
-            .id(validateAndGetId(csvRecord, recordNumber))
-            .name(validateAndGetName(csvRecord, recordNumber))
-            .genre(validateAndGetGenre(csvRecord, recordNumber))
-            .numberOfParticipants(validateAndGetNumberOfParticipants(csvRecord, recordNumber))
-            .singlesCount(validateAndGetSinglesCount(csvRecord, recordNumber))
-            .establishmentDate(validateAndGetEstablishmentDate(csvRecord, recordNumber))
-            .description(validateAndGetDescription(csvRecord, recordNumber))
+            .id(validateAndGetId(csvRecord, recordNumber, insertionHistory))
+            .name(validateAndGetName(csvRecord, recordNumber, insertionHistory))
+            .genre(validateAndGetGenre(csvRecord, recordNumber, insertionHistory))
+            .numberOfParticipants(validateAndGetNumberOfParticipants(csvRecord, recordNumber, insertionHistory))
+            .singlesCount(validateAndGetSinglesCount(csvRecord, recordNumber, insertionHistory))
+            .establishmentDate(validateAndGetEstablishmentDate(csvRecord, recordNumber, insertionHistory))
+            .description(validateAndGetDescription(csvRecord, recordNumber, insertionHistory))
             // вложенные сущности
-            .coordinates(validateAndGetCoordinates(csvRecord, recordNumber))
-            .studio(validateAndGetStudio(csvRecord, recordNumber))
-            .bestAlbum(validateAndGetBestAlbum(csvRecord, recordNumber))
+            .coordinates(validateAndGetCoordinates(csvRecord, recordNumber, insertionHistory))
+            .studio(validateAndGetStudio(csvRecord, recordNumber, insertionHistory))
+            .bestAlbum(validateAndGetBestAlbum(csvRecord, recordNumber, insertionHistory))
             .build();
     }
 
-    public static Long validateAndGetId(CSVRecord csvRecord, long recordNumber) {
+    public static Long validateAndGetId(CSVRecord csvRecord, long recordNumber, InsertionHistory insertionHistory) {
         String idString = csvRecord.get(InsertionHeaders.ID.getName());
         if (!StringUtils.hasText(idString)) {
-            throw new CsvParserException("Строка " + recordNumber + ": ID не может быть пустым");
+            throw new CsvParserException("Строка " + recordNumber + ": ID не может быть пустым", insertionHistory);
         }
         try {
             long id = Long.parseLong(idString);
             if (id <= 0) {
-                throw new CsvParserException("Строка " + recordNumber + ": ID должен быть положительным числом");
+                throw new CsvParserException(
+                    "Строка " + recordNumber + ": ID должен быть положительным числом",
+                    insertionHistory
+                );
             }
             return id;
         } catch (NumberFormatException e) {
-            throw new CsvParserException("Строка " + recordNumber + ": Некорректный формат ID: " + idString);
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Некорректный формат ID: " + idString,
+                insertionHistory
+            );
         }
     }
 
-    public static String validateAndGetName(CSVRecord csvRecord, long recordNumber) {
+    public static String validateAndGetName(CSVRecord csvRecord, long recordNumber, InsertionHistory insertionHistory) {
         String name = csvRecord.get(InsertionHeaders.NAME.getName());
         if (!StringUtils.hasText(name) || name.isBlank()) {
-            throw new CsvParserException("Строка " + recordNumber + ": Название не может быть пустым");
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Название не может быть пустым",
+                insertionHistory
+            );
         }
         if (name.length() > 255) {
-            throw new CsvParserException("Строка " + recordNumber + ": Название слишком длинное (макс. 255 символов)");
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Название слишком длинное (макс. 255 символов)",
+                insertionHistory
+            );
         }
         return name;
     }
 
-    public static MusicGenre validateAndGetGenre(CSVRecord csvRecord, long recordNumber) {
+    public static MusicGenre validateAndGetGenre(
+        CSVRecord csvRecord,
+        long recordNumber,
+        InsertionHistory insertionHistory
+    ) {
         String genreString = csvRecord.get(InsertionHeaders.GENRE.getName());
         if (!StringUtils.hasText(genreString)) {
             return null;
@@ -71,12 +92,16 @@ public class CsvParser {
         try {
             musicGenre = MusicGenre.valueOf(genreString);
         } catch (Exception e) {
-            throw new CsvParserException("Строка " + recordNumber + ": Ошибка формата жанра");
+            throw new CsvParserException("Строка " + recordNumber + ": Ошибка формата жанра", insertionHistory);
         }
         return musicGenre;
     }
 
-    public static Long validateAndGetNumberOfParticipants(CSVRecord csvRecord, long recordNumber) {
+    public static Long validateAndGetNumberOfParticipants(
+        CSVRecord csvRecord,
+        long recordNumber,
+        InsertionHistory insertionHistory
+    ) {
         String numberOfParticipantsString = csvRecord.get(InsertionHeaders.NUMBER_OF_PARTICIPANTS.getName());
         if (!StringUtils.hasText(numberOfParticipantsString)) {
             return null;
@@ -84,58 +109,101 @@ public class CsvParser {
         try {
             long numberOfParticipants = Long.parseLong(numberOfParticipantsString);
             if (numberOfParticipants <= 0) {
-                throw new CsvParserException("Строка " + recordNumber + ": количество участников должно быть положительным числом");
+                throw new CsvParserException(
+                    "Строка " + recordNumber + ": количество участников должно быть положительным числом",
+                    insertionHistory
+                );
             }
             return numberOfParticipants;
         } catch (NumberFormatException e) {
-            throw new CsvParserException("Строка " + recordNumber + ": Некорректный формат количества участников: " + numberOfParticipantsString);
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Некорректный формат количества участников: " + numberOfParticipantsString,
+                insertionHistory
+            );
         }
     }
 
-    public static Long validateAndGetSinglesCount(CSVRecord csvRecord, long recordNumber) {
+    public static Long validateAndGetSinglesCount(
+        CSVRecord csvRecord,
+        long recordNumber,
+        InsertionHistory insertionHistory
+    ) {
         String singlesCountString = csvRecord.get(InsertionHeaders.SINGLES_COUNT.getName());
         if (!StringUtils.hasText(singlesCountString)) {
-            throw new CsvParserException("Строка " + recordNumber + ": Количество синглов не может быть пустым");
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Количество синглов не может быть пустым",
+                insertionHistory
+            );
         }
         try {
             long numberOfParticipants = Long.parseLong(singlesCountString);
             if (numberOfParticipants <= 0) {
-                throw new CsvParserException("Строка " + recordNumber + ": количество синглов должно быть положительным числом");
+                throw new CsvParserException(
+                    "Строка " + recordNumber + ": количество синглов должно быть положительным числом",
+                    insertionHistory
+                );
             }
             return numberOfParticipants;
         } catch (NumberFormatException e) {
-            throw new CsvParserException("Строка " + recordNumber + ": Некорректный формат количества синглов: " + singlesCountString);
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Некорректный формат количества синглов: " + singlesCountString,
+                insertionHistory
+            );
         }
     }
 
-    public static LocalDate validateAndGetEstablishmentDate(CSVRecord csvRecord, long recordNumber) {
+    public static LocalDate validateAndGetEstablishmentDate(
+        CSVRecord csvRecord,
+        long recordNumber,
+        InsertionHistory insertionHistory
+    ) {
         String establishmentTime = csvRecord.get(InsertionHeaders.ESTABLISHMENT_DATE.getName());
         if (!StringUtils.hasText(establishmentTime)) {
-            throw new CsvParserException("Строка " + recordNumber + ": Время основания не может быть пустым: " + establishmentTime);
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Время основания не может быть пустым: " + establishmentTime,
+                insertionHistory
+            );
         }
         try {
             return LocalDate.parse(establishmentTime, DATE_FORMATTER);
         } catch (DateTimeParseException e) {
-            throw new CsvParserException("Строка " + recordNumber + ": Некорректный формат времени основания: " + establishmentTime);
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Некорректный формат времени основания: " + establishmentTime,
+                insertionHistory
+            );
         }
     }
 
-    public static String validateAndGetDescription(CSVRecord csvRecord, long recordNumber) {
+    public static String validateAndGetDescription(
+        CSVRecord csvRecord,
+        long recordNumber,
+        InsertionHistory insertionHistory
+    ) {
         String description = csvRecord.get(InsertionHeaders.DESCRIPTION.getName());
         if (!StringUtils.hasText(description)) {
             return null;
         }
         if (description.length() > 500) {
-            throw new CsvParserException("Строка " + recordNumber + ": Описание слишком длинное (макс. 500 символов)");
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Описание слишком длинное (макс. 500 символов)",
+                insertionHistory
+            );
         }
         return description;
     }
 
-    public static Coordinates validateAndGetCoordinates(CSVRecord csvRecord, long recordNumber) {
+    public static Coordinates validateAndGetCoordinates(
+        CSVRecord csvRecord,
+        long recordNumber,
+        InsertionHistory insertionHistory
+    ) {
         String xString = csvRecord.get(InsertionHeaders.COORDINATES_X.getName());
         String yString = csvRecord.get(InsertionHeaders.COORDINATES_Y.getName());
         if (!StringUtils.hasText(xString) || !StringUtils.hasText(yString)) {
-            throw new CsvParserException("Строка " + recordNumber + ": Координаты x и y не могут быть пустыми");
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Координаты x и y не могут быть пустыми",
+                insertionHistory
+            );
         }
         try {
             float x = Float.parseFloat(xString);
@@ -145,21 +213,37 @@ public class CsvParser {
                 .y(y)
                 .build();
         } catch (NumberFormatException e) {
-            throw new CsvParserException("Строка " + recordNumber + ": Некорректный формат координат: x=" + xString + ", y=" + yString);
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Некорректный формат координат: x=" + xString + ", y=" + yString,
+                insertionHistory
+            );
         }
     }
 
-    public static Studio validateAndGetStudio(CSVRecord csvRecord, long recordNumber) {
+    public static Studio validateAndGetStudio(
+        CSVRecord csvRecord,
+        long recordNumber,
+        InsertionHistory insertionHistory
+    ) {
         String studioName = csvRecord.get(InsertionHeaders.STUDIO_NAME.getName());
         String studioAddress = csvRecord.get(InsertionHeaders.STUDIO_ADDRESS.getName());
         if (!StringUtils.hasText(studioName) || !StringUtils.hasText(studioAddress)) {
-            throw new CsvParserException("Строка " + recordNumber + ": Название студии и адрес студии не могут быть пустыми");
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Название студии и адрес студии не могут быть пустыми",
+                insertionHistory
+            );
         }
         if (studioName.length() > 255) {
-            throw new CsvParserException("Строка " + recordNumber + ": Название студии слишком длинное (макс. 255 символов)");
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Название студии слишком длинное (макс. 255 символов)",
+                insertionHistory
+            );
         }
         if (studioAddress.length() > 255) {
-            throw new CsvParserException("Строка " + recordNumber + ": Адрес студии слишком длинный (макс. 255 символов)");
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Адрес студии слишком длинный (макс. 255 символов)",
+                    insertionHistory
+                );
         }
         return Studio.builder()
             .name(studioName)
@@ -167,23 +251,39 @@ public class CsvParser {
             .build();
     }
 
-    public static Album validateAndGetBestAlbum(CSVRecord csvRecord, long recordNumber) {
+    public static Album validateAndGetBestAlbum(
+        CSVRecord csvRecord,
+        long recordNumber,
+        InsertionHistory insertionHistory
+    ) {
         String bestAlbumNameString = csvRecord.get(InsertionHeaders.BEST_ALBUM_NAME.getName());
         String bestAlbumLengthString = csvRecord.get(InsertionHeaders.BEST_ALBUM_LENGTH.getName());
         if (!StringUtils.hasText(bestAlbumNameString) || !StringUtils.hasText(bestAlbumLengthString)) {
-            throw new CsvParserException("Строка " + recordNumber + ": Название и длина лучшего альбома не может быть пустыми");
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Название и длина лучшего альбома не может быть пустыми",
+                insertionHistory
+            );
         }
         if (bestAlbumNameString.length() > 255) {
-            throw new CsvParserException("Строка " + recordNumber + ": Название альбома слишком длинное (макс. 255 символов)");
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Название альбома слишком длинное (макс. 255 символов)",
+                insertionHistory
+            );
         }
         int bestAlbumLength;
         try {
             bestAlbumLength = Integer.parseInt(bestAlbumLengthString);
             if (bestAlbumLength <= 0) {
-                throw new CsvParserException("Строка " + recordNumber + ": длина лучшего альбома должен быть положительным числом");
+                throw new CsvParserException(
+                    "Строка " + recordNumber + ": длина лучшего альбома должен быть положительным числом",
+                    insertionHistory
+                );
             }
         } catch (NumberFormatException e) {
-            throw new CsvParserException("Строка " + recordNumber + ": Некорректный формат длительности альбома: " + bestAlbumLengthString);
+            throw new CsvParserException(
+                "Строка " + recordNumber + ": Некорректный формат длительности альбома: " + bestAlbumLengthString,
+                insertionHistory
+            );
         }
         return Album.builder()
             .name(bestAlbumNameString)

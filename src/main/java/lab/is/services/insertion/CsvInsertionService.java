@@ -15,17 +15,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import lab.is.bd.entities.InsertionHistory;
 import lab.is.bd.entities.MusicBand;
 import lab.is.exceptions.CsvParserException;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class CsvInsertionService {
+    private static final int BATCH_SIZE = 100;
     @PersistenceContext
     private EntityManager entityManager;
-    private static final int BATCH_SIZE = 100;
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public void insertCsv(InputStream csvStream) throws IOException {
+    public Long insertCsv(InputStream csvStream, InsertionHistory insertionHistory) throws IOException {
         String[] headers = {
             InsertionHeaders.ID.getName(),
             InsertionHeaders.NAME.getName(),
@@ -48,7 +51,7 @@ public class CsvInsertionService {
             .setTrim(true)
             .setNullString("")
             .get();
-        int recordCount = 0;
+        Long recordCount = 0L;
         try (Reader reader = new InputStreamReader(csvStream, StandardCharsets.UTF_8);
             CSVParser parser = CSVParser.builder()
                 .setReader(reader)
@@ -57,7 +60,11 @@ public class CsvInsertionService {
             ) {
             for (CSVRecord csvRecord: parser) {
                 recordCount++;
-                MusicBand band = CsvParser.convertRecordToEntity(csvRecord, csvRecord.getRecordNumber());
+                MusicBand band = CsvParser.convertRecordToEntity(
+                    csvRecord,
+                    csvRecord.getRecordNumber(),
+                    insertionHistory
+                );
                 entityManager.persist(band);
                 if (recordCount % BATCH_SIZE == 0) {
                     entityManager.flush();
@@ -66,7 +73,8 @@ public class CsvInsertionService {
             }
             entityManager.flush();
         } catch (Exception e) {
-            throw new CsvParserException("Импорт прерван на строке " + recordCount);
+            throw new CsvParserException("Импорт прерван на строке " + recordCount, insertionHistory);
         }
+        return recordCount;
     }
 }

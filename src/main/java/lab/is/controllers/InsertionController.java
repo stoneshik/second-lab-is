@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import lab.is.bd.entities.InsertionHistory;
 import lab.is.exceptions.CsvParserException;
 import lab.is.services.insertion.CsvInsertionService;
+import lab.is.services.insertion.history.InsertionHistoryService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -16,14 +18,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InsertionController {
     private final CsvInsertionService insertionService;
+    private final InsertionHistoryService insertionHistoryService;
 
     @PostMapping("/csv")
-    public ResponseEntity<Void> importCsv(@RequestParam MultipartFile file) {
+    public ResponseEntity<Void> importCsv(
+        @RequestParam Long userId,
+        @RequestParam MultipartFile file
+    ) {
+        InsertionHistory insertionHistory = insertionHistoryService.create(userId);
         try {
-            insertionService.insertCsv(file.getInputStream());
+            Long numberObjects = insertionService.insertCsv(file.getInputStream(), insertionHistory);
+            insertionHistoryService.updateStatusToSuccess(insertionHistory, numberObjects);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            throw new CsvParserException("Ошибка при импорте данных");
+            throw new CsvParserException("Ошибка при импорте данных", insertionHistory);
         }
     }
 }

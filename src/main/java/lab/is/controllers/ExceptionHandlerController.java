@@ -28,9 +28,14 @@ import lab.is.exceptions.NotFoundException;
 import lab.is.exceptions.ResourceIsAlreadyExistsException;
 import lab.is.exceptions.TokenRefreshException;
 import lab.is.exceptions.ValueOverflowException;
+import lab.is.services.insertion.history.InsertionHistoryService;
+import lombok.RequiredArgsConstructor;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class ExceptionHandlerController {
+    private final InsertionHistoryService insertionHistoryService;
+
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public ErrorMessageResponseDto handleException(NotFoundException e) {
@@ -61,6 +66,7 @@ public class ExceptionHandlerController {
     @ExceptionHandler(CsvParserException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorMessageResponseDto handleException(CsvParserException e) {
+        insertionHistoryService.updateStatusToFailed(e.getInsertionHistory());
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message(e.getMessage())
