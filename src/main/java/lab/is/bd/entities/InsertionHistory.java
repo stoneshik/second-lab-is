@@ -70,7 +70,7 @@ public class InsertionHistory {
 
     @ToString.Include
     @Positive(message = "{positive}")
-    @Column(name = "number_objects", nullable = false)
+    @Column(name = "number_objects", nullable = true)
     private Long numberObjects;
 
     @Valid

@@ -21,8 +21,8 @@ public class InsertionHistoryController {
 
     @GetMapping
     public ResponseEntity<WrapperListInsertionHistoriesResponseDto> getAll(
-        @RequestParam(required = true) Long userId,
-        @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+        @RequestParam(required = false) Long userId,
+        @PageableDefault(page = 0, size = 10, sort = "creationDate", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         if (userId == null) {
             return ResponseEntity.ok(

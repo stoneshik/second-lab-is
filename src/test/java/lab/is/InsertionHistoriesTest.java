@@ -52,12 +52,12 @@ class InsertionHistoriesTest extends SpringBootApplicationTest {
                 jsonPath("$.currentPage").value(0),
                 jsonPath("$.pageSize").value(3),
 
-                jsonPath("$.insertionHistories[0].id").value(1L),
+                jsonPath("$.insertionHistories[0].id").value(3L),
                 jsonPath("$.insertionHistories[0].creationDate").exists(),
-                jsonPath("$.insertionHistories[0].endDate").exists(),
-                jsonPath("$.insertionHistories[0].status").value("SUCCESS"),
+                jsonPath("$.insertionHistories[0].endDate").doesNotExist(),
+                jsonPath("$.insertionHistories[0].status").value("PENDING"),
                 jsonPath("$.insertionHistories[0].login").value("first"),
-                jsonPath("$.insertionHistories[0].numberObjects").value(3L),
+                jsonPath("$.insertionHistories[0].numberObjects").doesNotExist(),
 
                 jsonPath("$.insertionHistories[1].id").value(2L),
                 jsonPath("$.insertionHistories[1].creationDate").exists(),
@@ -66,12 +66,12 @@ class InsertionHistoriesTest extends SpringBootApplicationTest {
                 jsonPath("$.insertionHistories[1].login").value("admin"),
                 jsonPath("$.insertionHistories[1].numberObjects").doesNotExist(),
 
-                jsonPath("$.insertionHistories[2].id").value(3L),
+                jsonPath("$.insertionHistories[2].id").value(1L),
                 jsonPath("$.insertionHistories[2].creationDate").exists(),
-                jsonPath("$.insertionHistories[2].endDate").doesNotExist(),
-                jsonPath("$.insertionHistories[2].status").value("PENDING"),
+                jsonPath("$.insertionHistories[2].endDate").exists(),
+                jsonPath("$.insertionHistories[2].status").value("SUCCESS"),
                 jsonPath("$.insertionHistories[2].login").value("first"),
-                jsonPath("$.insertionHistories[2].numberObjects").doesNotExist()
+                jsonPath("$.insertionHistories[2].numberObjects").value(3L)
             );
     }
 
@@ -80,7 +80,7 @@ class InsertionHistoriesTest extends SpringBootApplicationTest {
         setupDb();
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
             .get("/api/v1/insertion/histories")
-            .param("user", "3");
+            .param("userId", "3");
         mockMvc
             .perform(requestBuilder)
             .andExpectAll(
@@ -103,30 +103,30 @@ class InsertionHistoriesTest extends SpringBootApplicationTest {
         setupDb();
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
             .get("/api/v1/insertion/histories")
-            .param("user", "1");
+            .param("userId", "1");
         mockMvc
             .perform(requestBuilder)
             .andExpectAll(
                 status().isOk(),
                 content().contentTypeCompatibleWith("application/json"),
-                jsonPath("$.totalElements").value(3L),
+                jsonPath("$.totalElements").value(2L),
                 jsonPath("$.totalPages").value(1),
                 jsonPath("$.currentPage").value(0),
-                jsonPath("$.pageSize").value(3),
+                jsonPath("$.pageSize").value(2),
 
-                jsonPath("$.insertionHistories[0].id").value(1L),
+                jsonPath("$.insertionHistories[0].id").value(3L),
                 jsonPath("$.insertionHistories[0].creationDate").exists(),
-                jsonPath("$.insertionHistories[0].endDate").exists(),
-                jsonPath("$.insertionHistories[0].status").value("SUCCESS"),
+                jsonPath("$.insertionHistories[0].endDate").doesNotExist(),
+                jsonPath("$.insertionHistories[0].status").value("PENDING"),
                 jsonPath("$.insertionHistories[0].login").value("first"),
-                jsonPath("$.insertionHistories[0].numberObjects").value(3L),
+                jsonPath("$.insertionHistories[0].numberObjects").doesNotExist(),
 
-                jsonPath("$.insertionHistories[1].id").value(3L),
+                jsonPath("$.insertionHistories[1].id").value(1L),
                 jsonPath("$.insertionHistories[1].creationDate").exists(),
-                jsonPath("$.insertionHistories[1].endDate").doesNotExist(),
-                jsonPath("$.insertionHistories[1].status").value("PENDING"),
+                jsonPath("$.insertionHistories[1].endDate").exists(),
+                jsonPath("$.insertionHistories[1].status").value("SUCCESS"),
                 jsonPath("$.insertionHistories[1].login").value("first"),
-                jsonPath("$.insertionHistories[1].numberObjects").doesNotExist()
+                jsonPath("$.insertionHistories[1].numberObjects").value(3L)
             );
     }
 
@@ -135,7 +135,7 @@ class InsertionHistoriesTest extends SpringBootApplicationTest {
         setupDb();
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
             .get("/api/v1/insertion/histories")
-            .param("user", "4");
+            .param("userId", "4");
         mockMvc
             .perform(requestBuilder)
             .andExpectAll(

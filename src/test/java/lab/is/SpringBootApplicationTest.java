@@ -4,6 +4,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.TestInstance;
@@ -23,12 +25,15 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lab.is.bd.entities.Album;
 import lab.is.bd.entities.Coordinates;
+import lab.is.bd.entities.InsertionHistory;
+import lab.is.bd.entities.InsertionHistoryStatus;
 import lab.is.bd.entities.MusicBand;
 import lab.is.bd.entities.MusicGenre;
 import lab.is.bd.entities.Nomination;
 import lab.is.bd.entities.Studio;
 import lab.is.security.bd.entities.Role;
 import lab.is.security.bd.entities.RoleEnum;
+import lab.is.security.bd.entities.User;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
@@ -95,9 +100,25 @@ abstract class SpringBootApplicationTest {
     protected void createEntitiesInDb() {
         Role userRole = Role.builder().name(RoleEnum.ROLE_USER).build();
         Role adminRole = Role.builder().name(RoleEnum.ROLE_ADMIN).build();
-
         entityManager.persist(userRole);
         entityManager.persist(adminRole);
+
+        User user1 = User.builder().login("first").password("first").roles(Set.of(userRole)).build();
+        User admin = User.builder().login("admin").password("first").roles(Set.of(userRole, adminRole)).build();
+        User user3 = User.builder().login("third").password("third").roles(Set.of(userRole)).build();
+        entityManager.persist(user1);
+        entityManager.persist(admin);
+        entityManager.persist(user3);
+
+        InsertionHistory insertionHistory1 = InsertionHistory.builder().endDate(LocalDateTime.now())
+            .status(InsertionHistoryStatus.SUCCESS).user(user1).numberObjects(3L).build();
+        InsertionHistory insertionHistory2 = InsertionHistory.builder()
+            .status(InsertionHistoryStatus.FAILED).user(admin).build();
+        InsertionHistory insertionHistory3 = InsertionHistory.builder()
+            .status(InsertionHistoryStatus.PENDING).user(user1).build();
+        entityManager.persist(insertionHistory1);
+        entityManager.persist(insertionHistory2);
+        entityManager.persist(insertionHistory3);
 
         Coordinates coordinates1 = Coordinates.builder()
             .x(1.0f)
@@ -111,7 +132,6 @@ abstract class SpringBootApplicationTest {
             .x(1000.0f)
             .y(2147483647)
             .build();
-
         entityManager.persist(coordinates1);
         entityManager.persist(coordinates2);
         entityManager.persist(coordinates3);
