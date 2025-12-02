@@ -20,6 +20,7 @@ import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lab.is.dto.responses.ErrorMessageResponseDto;
+import lab.is.exceptions.CsvParserException;
 import lab.is.exceptions.IncorrectDtoInRequestException;
 import lab.is.exceptions.NestedObjectIsUsedException;
 import lab.is.exceptions.NestedObjectNotFoundException;
@@ -51,6 +52,15 @@ public class ExceptionHandlerController {
     @ExceptionHandler(IncorrectDtoInRequestException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorMessageResponseDto handleException(IncorrectDtoInRequestException e) {
+        return ErrorMessageResponseDto.builder()
+            .timestamp(new Date())
+            .message(e.getMessage())
+            .build();
+    }
+
+    @ExceptionHandler(CsvParserException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessageResponseDto handleException(CsvParserException e) {
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message(e.getMessage())
