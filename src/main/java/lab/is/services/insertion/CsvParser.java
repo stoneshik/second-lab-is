@@ -30,6 +30,7 @@ public class CsvParser {
             .genre(validateAndGetGenre(csvRecord, recordNumber, insertionHistory))
             .numberOfParticipants(validateAndGetNumberOfParticipants(csvRecord, recordNumber, insertionHistory))
             .singlesCount(validateAndGetSinglesCount(csvRecord, recordNumber, insertionHistory))
+            .albumsCount(validateAndGetAlbumsCount(csvRecord, recordNumber, insertionHistory))
             .establishmentDate(validateAndGetEstablishmentDate(csvRecord, recordNumber, insertionHistory))
             .description(validateAndGetDescription(csvRecord, recordNumber, insertionHistory))
             // вложенные сущности
@@ -113,14 +114,14 @@ public class CsvParser {
             );
         }
         try {
-            long numberOfParticipants = Long.parseLong(singlesCountString);
-            if (numberOfParticipants <= 0) {
+            long singlesCount = Long.parseLong(singlesCountString);
+            if (singlesCount <= 0) {
                 throw new CsvParserException(
                     "Строка " + recordNumber + ": количество синглов должно быть положительным числом",
                     insertionHistory
                 );
             }
-            return numberOfParticipants;
+            return singlesCount;
         } catch (NumberFormatException e) {
             throw new CsvParserException(
                 "Строка " + recordNumber + ": Некорректный формат количества синглов: " + singlesCountString,
@@ -128,6 +129,35 @@ public class CsvParser {
             );
         }
     }
+    public static Long validateAndGetAlbumsCount(
+            CSVRecord csvRecord,
+            long recordNumber,
+            InsertionHistory insertionHistory
+    ) {
+        String albumsCountString = csvRecord.get(InsertionHeaders.ALBUMS_COUNT.getName());
+        if (!StringUtils.hasText(albumsCountString)) {
+            throw new CsvParserException(
+                    "Строка " + recordNumber + ": Количество альбомов не может быть пустым",
+                    insertionHistory
+            );
+        }
+        try {
+            long albumsCount = Long.parseLong(albumsCountString);
+            if (albumsCount <= 0) {
+                throw new CsvParserException(
+                        "Строка " + recordNumber + ": количество альбомов должно быть положительным числом",
+                        insertionHistory
+                );
+            }
+            return albumsCount;
+        } catch (NumberFormatException e) {
+            throw new CsvParserException(
+                    "Строка " + recordNumber + ": Некорректный формат количества альбомов: " + albumsCountString,
+                    insertionHistory
+            );
+        }
+    }
+
 
     public static LocalDate validateAndGetEstablishmentDate(
         CSVRecord csvRecord,

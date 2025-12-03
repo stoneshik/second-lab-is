@@ -5,6 +5,7 @@ public enum InsertionHeaders {
     GENRE("Жанр"),
     NUMBER_OF_PARTICIPANTS("Участники"),
     SINGLES_COUNT("Синглы"),
+    ALBUMS_COUNT("Альбомы"),
     ESTABLISHMENT_DATE("Дата основания"),
     DESCRIPTION("Описание"),
     COORDINATES_X("Координаты.x"),

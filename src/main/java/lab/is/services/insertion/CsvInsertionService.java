@@ -28,12 +28,13 @@ public class CsvInsertionService {
     private EntityManager entityManager;
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public Long insertCsv(InputStream csvStream, InsertionHistory insertionHistory) throws IOException {
+    public Long insertCsv(InputStream csvStream, InsertionHistory insertionHistory) {
         String[] headers = {
             InsertionHeaders.NAME.getName(),
             InsertionHeaders.GENRE.getName(),
             InsertionHeaders.NUMBER_OF_PARTICIPANTS.getName(),
             InsertionHeaders.SINGLES_COUNT.getName(),
+            InsertionHeaders.ALBUMS_COUNT.getName(),
             InsertionHeaders.ESTABLISHMENT_DATE.getName(),
             InsertionHeaders.DESCRIPTION.getName(),
             InsertionHeaders.COORDINATES_X.getName(),
@@ -50,7 +51,7 @@ public class CsvInsertionService {
             .setTrim(true)
             .setNullString("")
             .get();
-        Long recordCount = 0L;
+        long recordCount = 0L;
         try (Reader reader = new InputStreamReader(csvStream, StandardCharsets.UTF_8);
             CSVParser parser = CSVParser.builder()
                 .setReader(reader)
