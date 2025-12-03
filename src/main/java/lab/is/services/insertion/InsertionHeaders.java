@@ -1,7 +1,6 @@
 package lab.is.services.insertion;
 
 public enum InsertionHeaders {
-    ID("ID"),
     NAME("Название"),
     GENRE("Жанр"),
     NUMBER_OF_PARTICIPANTS("Участники"),

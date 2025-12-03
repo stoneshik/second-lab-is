@@ -26,7 +26,6 @@ public class CsvParser {
         InsertionHistory insertionHistory
     ) {
         return MusicBand.builder()
-            .id(validateAndGetId(csvRecord, recordNumber, insertionHistory))
             .name(validateAndGetName(csvRecord, recordNumber, insertionHistory))
             .genre(validateAndGetGenre(csvRecord, recordNumber, insertionHistory))
             .numberOfParticipants(validateAndGetNumberOfParticipants(csvRecord, recordNumber, insertionHistory))
@@ -38,28 +37,6 @@ public class CsvParser {
             .studio(validateAndGetStudio(csvRecord, recordNumber, insertionHistory))
             .bestAlbum(validateAndGetBestAlbum(csvRecord, recordNumber, insertionHistory))
             .build();
-    }
-
-    public static Long validateAndGetId(CSVRecord csvRecord, long recordNumber, InsertionHistory insertionHistory) {
-        String idString = csvRecord.get(InsertionHeaders.ID.getName());
-        if (!StringUtils.hasText(idString)) {
-            throw new CsvParserException("Строка " + recordNumber + ": ID не может быть пустым", insertionHistory);
-        }
-        try {
-            long id = Long.parseLong(idString);
-            if (id <= 0) {
-                throw new CsvParserException(
-                    "Строка " + recordNumber + ": ID должен быть положительным числом",
-                    insertionHistory
-                );
-            }
-            return id;
-        } catch (NumberFormatException e) {
-            throw new CsvParserException(
-                "Строка " + recordNumber + ": Некорректный формат ID: " + idString,
-                insertionHistory
-            );
-        }
     }
 
     public static String validateAndGetName(CSVRecord csvRecord, long recordNumber, InsertionHistory insertionHistory) {

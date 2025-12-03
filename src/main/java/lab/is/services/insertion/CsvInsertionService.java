@@ -30,7 +30,6 @@ public class CsvInsertionService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public Long insertCsv(InputStream csvStream, InsertionHistory insertionHistory) throws IOException {
         String[] headers = {
-            InsertionHeaders.ID.getName(),
             InsertionHeaders.NAME.getName(),
             InsertionHeaders.GENRE.getName(),
             InsertionHeaders.NUMBER_OF_PARTICIPANTS.getName(),
