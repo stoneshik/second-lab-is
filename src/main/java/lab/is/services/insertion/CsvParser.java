@@ -234,6 +234,9 @@ public class CsvParser {
     ) {
         String studioName = csvRecord.get(InsertionHeaders.STUDIO_NAME.getName());
         String studioAddress = csvRecord.get(InsertionHeaders.STUDIO_ADDRESS.getName());
+        if (!StringUtils.hasText(studioName) && !StringUtils.hasText(studioAddress)) {
+            return null;
+        }
         if (!StringUtils.hasText(studioName) || !StringUtils.hasText(studioAddress)) {
             throw new CsvParserException(
                 "Строка " + recordNumber + ": Название студии и адрес студии не могут быть пустыми",
@@ -265,9 +268,12 @@ public class CsvParser {
     ) {
         String bestAlbumNameString = csvRecord.get(InsertionHeaders.BEST_ALBUM_NAME.getName());
         String bestAlbumLengthString = csvRecord.get(InsertionHeaders.BEST_ALBUM_LENGTH.getName());
+        if (!StringUtils.hasText(bestAlbumNameString) && !StringUtils.hasText(bestAlbumLengthString)) {
+            return null;
+        }
         if (!StringUtils.hasText(bestAlbumNameString) || !StringUtils.hasText(bestAlbumLengthString)) {
             throw new CsvParserException(
-                "Строка " + recordNumber + ": Название и длина лучшего альбома не может быть пустыми",
+                "Строка " + recordNumber + ": Название или длина лучшего альбома не может быть пустыми",
                 insertionHistory
             );
         }
