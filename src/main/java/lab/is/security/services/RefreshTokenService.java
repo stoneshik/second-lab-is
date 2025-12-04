@@ -55,10 +55,4 @@ public class RefreshTokenService {
         User user = userService.loadUserById(userId);
         refreshTokenRepository.deleteByUserId(user.getId());
     }
-
-    @Transactional
-    public void deleteByLogin(String login) {
-        User user = userService.loadUserByLogin(login);
-        refreshTokenRepository.deleteByUserId(user.getId());
-    }
 }

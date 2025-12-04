@@ -27,6 +27,10 @@ spring:
         persistence:
           validation:
             mode: "auto"
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
   mvc:
     pathmatch:
       matching-strategy: "ant_path_matcher"

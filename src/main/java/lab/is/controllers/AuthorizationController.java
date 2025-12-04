@@ -139,11 +139,11 @@ public class AuthorizationController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logoutUser(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> logoutUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         if (userDetails == null) {
             throw new TokenRefreshException("Пользователь не авторизован");
         }
-        refreshTokenService.deleteByLogin(userDetails.getUsername());
+        refreshTokenService.deleteByUserId(userDetails.getId());
         SecurityContextHolder.clearContext();
         return ResponseEntity.noContent().build();
     }

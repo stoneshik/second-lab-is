@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpServerErrorException.InternalServerError;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ConstraintViolation;
@@ -60,6 +61,15 @@ public class ExceptionHandlerController {
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message(e.getMessage())
+            .build();
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessageResponseDto handleException(MaxUploadSizeExceededException e) {
+        return ErrorMessageResponseDto.builder()
+            .timestamp(new Date())
+            .message("Превышен размер загружаемого файла")
             .build();
     }
 

@@ -1,6 +1,9 @@
 package lab.is.controllers;
 
+import lab.is.exceptions.UserDoesNotHaveEnoughRightsException;
+import lab.is.security.model.UserDetailsImpl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,9 +25,14 @@ public class InsertionController {
 
     @PostMapping("/csv")
     public ResponseEntity<Void> importCsv(
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestParam Long userId,
         @RequestParam MultipartFile file
     ) {
+        Long userIdFromUserDetails = userDetails.getId();
+        if (!userId.equals(userIdFromUserDetails)) {
+            throw new UserDoesNotHaveEnoughRightsException("у пользователя недостаточно прав");
+        }
         InsertionHistory insertionHistory = insertionHistoryService.create(userId);
         try {
             Long numberObjects = insertionService.insertCsv(file.getInputStream(), insertionHistory);
