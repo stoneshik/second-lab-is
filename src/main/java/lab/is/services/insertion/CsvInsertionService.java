@@ -72,6 +72,8 @@ public class CsvInsertionService {
                 }
             }
             entityManager.flush();
+        } catch (CsvParserException e) {
+            throw e;
         } catch (Exception e) {
             throw new CsvParserException("Импорт прерван на строке " + recordCount, insertionHistory);
         }

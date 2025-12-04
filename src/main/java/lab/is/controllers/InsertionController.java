@@ -30,6 +30,8 @@ public class InsertionController {
             Long numberObjects = insertionService.insertCsv(file.getInputStream(), insertionHistory);
             insertionHistoryService.updateStatusToSuccess(insertionHistory, numberObjects);
             return ResponseEntity.ok().build();
+        } catch (CsvParserException e) {
+            throw e;
         } catch (Exception e) {
             throw new CsvParserException("Ошибка при импорте данных", insertionHistory);
         }
