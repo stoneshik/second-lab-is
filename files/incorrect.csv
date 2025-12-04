@@ -1,5 +1,2 @@
 Название;Жанр;Участники;Синглы;Альбомы;Дата основания;Описание;Координаты.x;Координаты.y;Студия.Название;Студия.Адрес;Лучший альбом.Название;Лучший альбом.Длительность
-first;PROGRESSIVE_ROCK;3;10;2;2024-08-03;description;10.0;2;studio first;studio address;first album;100
-second;POST_PUNK;3;10;2;2024-08-03;;10.0;2;;;;
-third;BRIT_POP;3;10;2;2024-08-03;description;10.0;2;studio;address;;
-fourth;;3;10;2;2024-08-03;descriptiond;10.0;2;;;second album;2
+first;PROGRESSIVE_ROCK;3;10;;2024-08-03;description;10.0;2;studio first;studio address;first album;100

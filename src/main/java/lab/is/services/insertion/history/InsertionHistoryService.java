@@ -70,6 +70,7 @@ public class InsertionHistoryService {
     public InsertionHistory create(Long userId) {
         User user = userService.loadUserById(userId);
         InsertionHistory insertionHistory = InsertionHistory.builder()
+            .endDate(null)
             .status(InsertionHistoryStatus.PENDING)
             .user(user)
             .build();

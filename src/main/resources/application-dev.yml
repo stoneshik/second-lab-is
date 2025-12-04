@@ -29,8 +29,8 @@ spring:
             mode: "auto"
   servlet:
     multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
+      max-file-size: 250MB
+      max-request-size: 250MB
   mvc:
     pathmatch:
       matching-strategy: "ant_path_matcher"
