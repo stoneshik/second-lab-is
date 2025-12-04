@@ -30,4 +30,6 @@ public interface MusicBandRepository extends JpaRepository<MusicBand, Long>,
     @Override
     @EntityGraph(attributePaths = {"coordinates", "bestAlbum", "studio"})
     Optional<MusicBand> findById(Long id);
+
+    boolean existsByName(String name);
 }

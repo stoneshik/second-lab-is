@@ -16,6 +16,7 @@ import lab.is.dto.requests.musicband.MusicBandRequestCreateDto;
 import lab.is.dto.requests.musicband.MusicBandRequestUpdateDto;
 import lab.is.dto.responses.musicband.MusicBandResponseDto;
 import lab.is.dto.responses.musicband.WrapperListMusicBandResponseDto;
+import lab.is.exceptions.MusicBandExistsException;
 import lab.is.repositories.MusicBandRepository;
 import lab.is.repositories.specifications.musicband.MusicBandSpecifications;
 import lab.is.util.musicband.MusicBandToDtoFromEntityMapper;
@@ -77,6 +78,11 @@ public class MusicBandService {
 
     @Transactional
     public MusicBand create(MusicBandRequestCreateDto dto) {
+        if (musicBandTxService.existsByName(dto.getName())) {
+            throw new MusicBandExistsException(
+                String.format("музыкальная группа с именем %s уже существует", dto.getName())
+            );
+        }
         MusicBand musicBand = musicBandToEntityFromDtoCreateRequest.toEntityFromDto(dto);
         MusicBand savedMusicBand = musicBandRepository.save(musicBand);
         musicBandRepository.flush();
@@ -90,6 +96,11 @@ public class MusicBandService {
             dto,
             musicBand
         );
+        if (!musicBand.getName().equals(dto.getName()) && musicBandTxService.existsByName(dto.getName())) {
+            throw new MusicBandExistsException(
+                String.format("музыкальная группа с именем %s уже существует", dto.getName())
+            );
+        }
         MusicBand savedMusicBand = musicBandRepository.save(musicBand);
         musicBandRepository.flush();
         return savedMusicBand;
@@ -107,5 +118,10 @@ public class MusicBandService {
     @Transactional(readOnly = true)
     public MusicBand findByIdReturnsEntity(Long id) {
         return musicBandTxService.findByIdReturnsEntity(id);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByName(String name) {
+        return musicBandTxService.existsByName(name);
     }
 }
