@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 public class DatabaseInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder encoder;
     private final CoordinatesRepository coordinatesRepository;
     private final AlbumRepository albumRepository;
     private final StudioRepository studioRepository;
@@ -49,7 +51,7 @@ public class DatabaseInitializer implements CommandLineRunner {
         roleRepository.save(userRole);
         roleRepository.save(adminRole);
 
-        User admin = User.builder().login("admin").password("first").roles(Set.of(userRole, adminRole)).build();
+        User admin = User.builder().login("admin").password(encoder.encode("admin")).roles(Set.of(userRole, adminRole)).build();
         userRepository.save(admin);
 
         Coordinates c1 = Coordinates.builder().x(10.0f).y(20).build();

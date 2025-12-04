@@ -60,7 +60,7 @@ public class InsertionHistory {
     private LocalDateTime creationDate;
 
     @ToString.Include
-    @Column(name = "end_date", nullable = true, updatable = false)
+    @Column(name = "end_date", nullable = true)
     private LocalDateTime endDate;
 
     @ToString.Include

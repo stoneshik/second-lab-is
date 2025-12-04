@@ -37,6 +37,7 @@ import lab.is.security.model.UserDetailsImpl;
 import lab.is.security.repositories.RoleRepository;
 import lab.is.security.repositories.UserRepository;
 import lab.is.security.services.RefreshTokenService;
+import lab.is.security.services.UserService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -45,6 +46,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthorizationController {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
     private final RefreshTokenService refreshTokenService;
@@ -52,6 +54,7 @@ public class AuthorizationController {
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+        userService.loadUserByLogin(loginRequestDto.getLogin());
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 loginRequestDto.getLogin(),
