@@ -26,6 +26,7 @@ import lab.is.security.bd.entities.RoleEnum;
 import lab.is.security.bd.entities.User;
 import lab.is.security.repositories.RoleRepository;
 import lab.is.security.repositories.UserRepository;
+import lab.is.services.musicband.MusicBandService;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -39,6 +40,7 @@ public class DatabaseInitializer implements CommandLineRunner {
     private final AlbumRepository albumRepository;
     private final StudioRepository studioRepository;
     private final MusicBandRepository musicBandRepository;
+    private final MusicBandService musicBandService;
     private final NominationRepository nominationRepository;
 
     @Override
@@ -218,16 +220,16 @@ public class DatabaseInitializer implements CommandLineRunner {
                 .studio(s2)
                 .build();
 
-        musicBandRepository.save(b1);
-        musicBandRepository.save(b2);
-        musicBandRepository.save(b3);
-        musicBandRepository.save(b4);
-        musicBandRepository.save(b5);
-        musicBandRepository.save(b6);
-        musicBandRepository.save(b7);
-        musicBandRepository.save(b8);
-        musicBandRepository.save(b9);
-        musicBandRepository.save(b10);
+        musicBandService.create(b1);
+        musicBandService.create(b2);
+        musicBandService.create(b3);
+        musicBandService.create(b4);
+        musicBandService.create(b5);
+        musicBandService.create(b6);
+        musicBandService.create(b7);
+        musicBandService.create(b8);
+        musicBandService.create(b9);
+        musicBandService.create(b10);
 
         nominationRepository.save(
                 Nomination.builder().musicBand(b1).musicGenre(MusicGenre.PROGRESSIVE_ROCK).build()

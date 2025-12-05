@@ -4,6 +4,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -16,34 +20,25 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lab.is.bd.entities.InsertionHistory;
 import lab.is.bd.entities.MusicBand;
+import lab.is.config.BatchProperties;
 import lab.is.exceptions.CsvParserException;
+import lab.is.exceptions.DuplicateNameException;
+import lab.is.services.insertion.bloomfilter.BloomFilterManager;
+import lab.is.services.musicband.MusicBandNameUniquenessValidator;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class CsvInsertionService {
-    private static final int BATCH_SIZE = 1000;
+    private final BatchProperties properties;
     @PersistenceContext
     private EntityManager entityManager;
-    private final CsvParser csvParser;
+    private final BloomFilterManager bloomFilterManager;
+    private final MusicBandNameUniquenessValidator musicBandNameUniquenessValidator;
+    private final String[] headers = InsertionHeaders.getHeaders();
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Long insertCsv(InputStream csvStream, InsertionHistory insertionHistory) {
-        String[] headers = {
-            InsertionHeaders.NAME.getName(),
-            InsertionHeaders.GENRE.getName(),
-            InsertionHeaders.NUMBER_OF_PARTICIPANTS.getName(),
-            InsertionHeaders.SINGLES_COUNT.getName(),
-            InsertionHeaders.ALBUMS_COUNT.getName(),
-            InsertionHeaders.ESTABLISHMENT_DATE.getName(),
-            InsertionHeaders.DESCRIPTION.getName(),
-            InsertionHeaders.COORDINATES_X.getName(),
-            InsertionHeaders.COORDINATES_Y.getName(),
-            InsertionHeaders.STUDIO_NAME.getName(),
-            InsertionHeaders.STUDIO_ADDRESS.getName(),
-            InsertionHeaders.BEST_ALBUM_NAME.getName(),
-            InsertionHeaders.BEST_ALBUM_LENGTH.getName()
-        };
         CSVFormat format = CSVFormat.DEFAULT.builder()
             .setDelimiter(';')
             .setHeader(headers)
@@ -51,6 +46,8 @@ public class CsvInsertionService {
             .setTrim(true)
             .setNullString("")
             .get();
+        Set<String> batchNamesCache = new HashSet<>(properties.getBatchSize() * 2);
+        List<MusicBand> batch = new ArrayList<>(properties.getBatchSize());
         long recordCount = 0L;
         try (Reader reader = new InputStreamReader(csvStream, StandardCharsets.UTF_8);
             CSVParser parser = CSVParser.builder()
@@ -60,23 +57,49 @@ public class CsvInsertionService {
             ) {
             for (CSVRecord csvRecord: parser) {
                 recordCount++;
-                MusicBand band = csvParser.convertRecordToEntity(
+                MusicBand musicBand = CsvParser.convertRecordToEntity(
                     csvRecord,
                     csvRecord.getRecordNumber(),
                     insertionHistory
                 );
-                entityManager.persist(band);
-                if (recordCount % BATCH_SIZE == 0) {
-                    entityManager.flush();
-                    entityManager.clear();
+                String name = csvRecord.get(InsertionHeaders.NAME.getName());
+                if (batchNamesCache.contains(name)) {
+                    throw new DuplicateNameException(
+                        String.format("Дубликат имени %s", name)
+                    );
+                }
+                musicBandNameUniquenessValidator.validate(name);
+                batchNamesCache.add(name);
+                batch.add(musicBand);
+                if (batch.size() >= properties.getBatchSize()) {
+                    flushBatch(batch, batchNamesCache);
+                    batch.clear();
+                    batchNamesCache.clear();
                 }
             }
-            entityManager.flush();
+            if (!batch.isEmpty()) {
+                flushBatch(batch, batchNamesCache);
+            }
+        } catch (DuplicateNameException e) {
+            throw new CsvParserException(
+                String.format("Импорт прерван на строке %s: %s", recordCount, e.getMessage()),
+                insertionHistory,
+                recordCount
+            );
         } catch (CsvParserException e) {
             throw e;
         } catch (Exception e) {
-            throw new CsvParserException("Импорт прерван на строке " + recordCount, insertionHistory);
+            throw new CsvParserException("Импорт прерван на строке " + recordCount, insertionHistory, recordCount);
         }
         return recordCount;
+    }
+
+    private void flushBatch(List<MusicBand> batch, Set<String> namesInBatch) {
+        for (MusicBand band : batch) {
+            entityManager.persist(band);
+        }
+        entityManager.flush();
+        entityManager.clear();
+        bloomFilterManager.putAll(namesInBatch);
     }
 }

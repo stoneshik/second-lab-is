@@ -24,4 +24,22 @@ public enum InsertionHeaders {
     public String getName() {
         return this.name;
     }
+
+    public static String[] getHeaders() {
+        return new String[] {
+            InsertionHeaders.NAME.getName(),
+            InsertionHeaders.GENRE.getName(),
+            InsertionHeaders.NUMBER_OF_PARTICIPANTS.getName(),
+            InsertionHeaders.SINGLES_COUNT.getName(),
+            InsertionHeaders.ALBUMS_COUNT.getName(),
+            InsertionHeaders.ESTABLISHMENT_DATE.getName(),
+            InsertionHeaders.DESCRIPTION.getName(),
+            InsertionHeaders.COORDINATES_X.getName(),
+            InsertionHeaders.COORDINATES_Y.getName(),
+            InsertionHeaders.STUDIO_NAME.getName(),
+            InsertionHeaders.STUDIO_ADDRESS.getName(),
+            InsertionHeaders.BEST_ALBUM_NAME.getName(),
+            InsertionHeaders.BEST_ALBUM_LENGTH.getName()
+        };
+    }
 }

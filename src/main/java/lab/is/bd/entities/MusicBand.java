@@ -36,7 +36,7 @@ import lombok.ToString;
 @Entity
 @Table(
     name = "music_bands",
-    indexes = @Index(columnList = "name")
+    indexes = @Index(name = "idx_music_band_name", columnList = "name", unique = false)
 )
 @Getter
 @Setter

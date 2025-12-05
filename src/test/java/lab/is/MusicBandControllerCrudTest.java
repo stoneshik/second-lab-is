@@ -350,7 +350,7 @@ class MusicBandControllerCrudTest extends AbstractMusicBandTest {
             .content(
                 """
                 {
-                    "name": "012345678901234567890123456789",
+                    "name": "0123456789",
                     "coordinates": {
                         "x": -100.12314,
                         "y": -2147483648
@@ -379,7 +379,7 @@ class MusicBandControllerCrudTest extends AbstractMusicBandTest {
         checkEntityExistByIdAndEqualExpectedMusicBandEntity(
             MusicBandResponseDto.builder()
                 .id(1L)
-                .name("012345678901234567890123456789")
+                .name("0123456789")
                 .coordinates(
                     CoordinatesResponseDto.builder()
                         .id(4L)
@@ -516,7 +516,7 @@ class MusicBandControllerCrudTest extends AbstractMusicBandTest {
     }
 
     @Test
-    void putMusicBandByIdWithSubObjectsIds_ReturnsResponseWithStatusNoContent() throws Exception {
+    void putMusicBandByIdExistsException_ReturnsResponseWithStatusBadRequest() throws Exception {
         setupDb();
         final Long id = 1L;
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
@@ -526,6 +526,83 @@ class MusicBandControllerCrudTest extends AbstractMusicBandTest {
                 """
                 {
                     "name": "012345678901234567890123456789",
+                    "coordinates": {
+                        "x": 123456.0,
+                        "y": 2147483648
+                    },
+                    "coordinatesId": null,
+                    "genre": "BRIT_POP",
+                    "numberOfParticipants": 9223372036854775808,
+                    "singlesCount": 0,
+                    "description": "",
+                    "bestAlbum": {
+                        "name": "first album",
+                        "length": 2147483647
+                    },
+                    "bestAlbumId": null,
+                    "albumsCount": -10,
+                    "establishmentDate": "2021-01-01",
+                    "studio": {
+                        "name": "",
+                        "address": ""
+                    },
+                    "studioId": null
+                }
+                """
+            );
+
+        mockMvc
+            .perform(requestBuilder)
+            .andExpectAll(
+                status().isBadRequest()
+            );
+
+        checkEntityExistByIdAndEqualExpectedMusicBandEntity(
+            MusicBandResponseDto.builder()
+                .id(1L)
+                .name("first band")
+                .coordinates(
+                    CoordinatesResponseDto.builder()
+                        .id(1L)
+                        .x(1.0f)
+                        .y(2)
+                        .build()
+                )
+                .genre(MusicGenre.PROGRESSIVE_ROCK)
+                .numberOfParticipants(4L)
+                .singlesCount(5L)
+                .description("first band description")
+                .bestAlbum(
+                    AlbumResponseDto.builder()
+                        .id(1L)
+                        .name("first album")
+                        .length(12)
+                        .build()
+                )
+                .albumsCount(2L)
+                .establishmentDate(LocalDate.of(2024, 8, 3))
+                .studio(
+                    StudioResponseDto.builder()
+                        .id(1L)
+                        .name("first studio")
+                        .address("first studio address")
+                        .build()
+                )
+                .build()
+        );
+    }
+
+    @Test
+    void putMusicBandByIdWithSubObjectsIds_ReturnsResponseWithStatusNoContent() throws Exception {
+        setupDb();
+        final Long id = 1L;
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
+            .put("/api/v1/music-bands/{id}", id)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """
+                {
+                    "name": "0123456789",
                     "coordinates": null,
                     "coordinatesId": 1,
                     "genre": "POST_PUNK",
@@ -551,7 +628,7 @@ class MusicBandControllerCrudTest extends AbstractMusicBandTest {
         checkEntityExistByIdAndEqualExpectedMusicBandEntity(
             MusicBandResponseDto.builder()
                 .id(1L)
-                .name("012345678901234567890123456789")
+                .name("0123456789")
                 .coordinates(
                     CoordinatesResponseDto.builder()
                         .id(1L)
@@ -593,7 +670,7 @@ class MusicBandControllerCrudTest extends AbstractMusicBandTest {
             .content(
                 """
                 {
-                    "name": "012345678901234567890123456789",
+                    "name": "0123456789",
                     "coordinates": null,
                     "coordinatesId": 4,
                     "genre": "POST_PUNK",

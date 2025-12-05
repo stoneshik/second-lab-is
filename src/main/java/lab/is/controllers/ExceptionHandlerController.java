@@ -20,8 +20,10 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lab.is.config.BatchProperties;
 import lab.is.dto.responses.ErrorMessageResponseDto;
 import lab.is.exceptions.CsvParserException;
+import lab.is.exceptions.DuplicateNameException;
 import lab.is.exceptions.IncorrectDtoInRequestException;
 import lab.is.exceptions.MusicBandExistsException;
 import lab.is.exceptions.NestedObjectIsUsedException;
@@ -30,13 +32,16 @@ import lab.is.exceptions.NotFoundException;
 import lab.is.exceptions.ResourceIsAlreadyExistsException;
 import lab.is.exceptions.TokenRefreshException;
 import lab.is.exceptions.ValueOverflowException;
+import lab.is.services.insertion.bloomfilter.BloomFilterManager;
 import lab.is.services.insertion.history.InsertionHistoryService;
 import lombok.RequiredArgsConstructor;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class ExceptionHandlerController {
+    private final BatchProperties properties;
     private final InsertionHistoryService insertionHistoryService;
+    private final BloomFilterManager bloomFilterManager;
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
@@ -83,10 +88,23 @@ public class ExceptionHandlerController {
             .build();
     }
 
+    @ExceptionHandler(DuplicateNameException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessageResponseDto handleException(DuplicateNameException e) {
+        return ErrorMessageResponseDto.builder()
+            .timestamp(new Date())
+            .message(e.getMessage())
+            .build();
+    }
+
     @ExceptionHandler(CsvParserException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorMessageResponseDto handleException(CsvParserException e) {
         insertionHistoryService.updateStatusToFailed(e.getInsertionHistory());
+        if (e.getRecordNumber() >= properties.getMaxRecordNumberForRebuildBloomFilter()) {
+            bloomFilterManager.rebuild();
+        }
+        bloomFilterManager.rebuild();
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message(e.getMessage())

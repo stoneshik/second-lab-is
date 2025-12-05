@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import lab.is.services.musicband.MusicBandService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,9 @@ abstract class SpringBootApplicationTest {
 
     @Autowired
     private PlatformTransactionManager transactionManager;
+
+    @Autowired
+    private MusicBandService musicBandService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -187,8 +191,8 @@ abstract class SpringBootApplicationTest {
             .establishmentDate(LocalDate.of(2024, 8, 3))
             .studio(null)
             .build();
-        entityManager.persist(musicBand1);
-        entityManager.persist(musicBand2);
+        musicBandService.create(musicBand1);
+        musicBandService.create(musicBand2);
 
         Nomination nomination1 = Nomination.builder()
             .musicBand(musicBand1)

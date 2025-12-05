@@ -8,13 +8,19 @@ import lab.is.bd.entities.InsertionHistory;
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class CsvParserException extends RuntimeException {
     private final transient InsertionHistory insertionHistory;
+    private final transient long recordCount;
 
-    public CsvParserException(String message, InsertionHistory insertionHistory) {
+    public CsvParserException(String message, InsertionHistory insertionHistory, long recordCount) {
         super(message);
         this.insertionHistory = insertionHistory;
+        this.recordCount = recordCount;
     }
 
     public InsertionHistory getInsertionHistory() {
         return insertionHistory;
+    }
+
+    public long getRecordNumber() {
+        return recordCount;
     }
 }

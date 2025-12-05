@@ -5,10 +5,10 @@ spring:
   main:
     banner-mode: "off"
   datasource:
-    own:
-      username: ${CONTAINER.USERNAME}
-      password: ${CONTAINER.PASSWORD}
-      url: ${CONTAINER.URL}
+    url: "${IS_SERVICE_BD_URL}"
+    username: "${IS_SERVICE_BD_USERNAME}"
+    password: "${IS_SERVICE_BD_PASSWORD}"
+    driver-class-name: "org.postgresql.Driver"
   jpa:
     generate-ddl: true
     hibernate.ddl-auto: "update"
@@ -22,7 +22,7 @@ spring:
         # Оптимизация для массовой вставки
         '[cache.use_second_level_cache]': false
         '[cache.use_query_cache]': false
-        '[jdbc.fetch_size]': 1000
+        '[jdbc.fetch_size]': 100
       javax:
         persistence:
           validation:
@@ -36,9 +36,9 @@ spring:
       matching-strategy: "ant_path_matcher"
 
 bloom-filter:
-  expected-insertions: 5000000
-  false-positive-probability: 0.000001
+  expected-insertions: 100000
+  false-positive-probability: 0.0001
 
 batch-properties:
-  batch-size: 10000
-  max-record-number_for_rebuild_bloom_filter: 1000
+  batch-size: 100
+  max-record-number_for_rebuild_bloom_filter: 100
