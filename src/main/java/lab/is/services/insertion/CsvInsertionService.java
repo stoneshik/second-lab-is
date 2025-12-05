@@ -34,6 +34,7 @@ public class CsvInsertionService {
     @PersistenceContext
     private EntityManager entityManager;
     private final BloomFilterManager bloomFilterManager;
+    private final CsvParser csvParser;
     private final MusicBandNameUniquenessValidator musicBandNameUniquenessValidator;
     private final String[] headers = InsertionHeaders.getHeaders();
 
@@ -57,7 +58,7 @@ public class CsvInsertionService {
             ) {
             for (CSVRecord csvRecord: parser) {
                 recordCount++;
-                MusicBand musicBand = CsvParser.convertRecordToEntity(
+                MusicBand musicBand = csvParser.convertRecordToEntity(
                     csvRecord,
                     csvRecord.getRecordNumber(),
                     insertionHistory
