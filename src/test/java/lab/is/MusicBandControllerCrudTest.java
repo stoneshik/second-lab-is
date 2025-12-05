@@ -145,6 +145,52 @@ class MusicBandControllerCrudTest extends AbstractMusicBandTest {
     }
 
     @Test
+    void createMusicBandExistsException_ReturnsResponseWithStatusBadRequest() throws Exception {
+        setupDb();
+        final Long id = 3L;
+
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
+            .post("/api/v1/music-bands")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """
+                {
+                    "name": "first band",
+                    "coordinates": {
+                        "x": 123456.0,
+                        "y": 2147483647
+                    },
+                    "coordinatesId": null,
+                    "genre": "BRIT_POP",
+                    "numberOfParticipants": 9223372036854775807,
+                    "singlesCount": 9223372036854775807,
+                    "description": "",
+                    "bestAlbum": {
+                        "name": "new album",
+                        "length": 2147483647
+                    },
+                    "bestAlbumId": null,
+                    "albumsCount": 9223372036854775807,
+                    "establishmentDate": "2021-01-01",
+                    "studio": {
+                        "name": "",
+                        "address": ""
+                    },
+                    "studioId": null
+                }
+                """
+            );
+
+        mockMvc
+            .perform(requestBuilder)
+            .andExpectAll(
+                status().isBadRequest()
+            );
+
+        checkEntityNotExistsById(id);
+    }
+
+    @Test
     void createMusicBandWithSubObjectsIds_ReturnsResponseWithStatusCreated() throws Exception {
         setupDb();
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders

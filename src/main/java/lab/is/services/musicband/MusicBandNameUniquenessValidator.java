@@ -6,7 +6,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
 import lab.is.exceptions.DuplicateNameException;
-import lab.is.services.insertion.BloomFilterManager;
+import lab.is.services.insertion.bloomfilter.BloomFilterManager;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,15 +32,14 @@ public class MusicBandNameUniquenessValidator {
     }
 
     public boolean checkInDatabaseWithLock(String name) {
-        return entityManager.createQuery(
-            """
-            SELECT CASE WHEN COUNT(m) > 0 THEN TRUE ELSE FALSE END
-            FROM MusicBand m WHERE m.name = :name
-            """,
-            Boolean.class
-        ).setParameter("name", name)
+        return !entityManager.createQuery(
+            "SELECT 1 FROM MusicBand m WHERE m.name = :name",
+            Integer.class
+        )
+            .setParameter("name", name)
             .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-            .setHint("jakarta.persistence.lock.timeout", 1000)
-            .getSingleResult();
+            .setMaxResults(1)
+            .getResultList()
+            .isEmpty();
     }
 }

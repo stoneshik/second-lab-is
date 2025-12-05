@@ -1,4 +1,4 @@
-package lab.is.services.insertion;
+package lab.is.services.insertion.bloomfilter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
@@ -9,22 +9,30 @@ import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class BloomFilterManager {
-    @PersistenceContext
-    private final EntityManager entityManager;
+    private final BloomFilterTxManager bloomFilterTxManager;
     private final AtomicReference<BloomFilter<String>> bloomFilterRef;
+
+    public BloomFilterManager(BloomFilterTxManager bloomFilterTxManager) {
+        this.bloomFilterTxManager = bloomFilterTxManager;
+        this.bloomFilterRef = new AtomicReference<>(createNewFilter());
+    }
 
     @PostConstruct
     public void init() {
         rebuild();
+    }
+
+    private BloomFilter<String> createNewFilter() {
+        return BloomFilter.create(
+                Funnels.stringFunnel(StandardCharsets.UTF_8),
+                1_500_000,
+                0.0000001
+        );
     }
 
     public boolean mightContain(String name) {
@@ -48,22 +56,9 @@ public class BloomFilterManager {
 
     public synchronized void rebuild() {
         log.info("Пересборка Bloom filter...");
-        BloomFilter<String> newFilter = createNewFilter();
-        entityManager.createQuery(
-                "SELECT m.name FROM MusicBand m WHERE m.name",
-                String.class
-            )
-            .getResultStream()
-            .forEach(newFilter::put);
+        BloomFilter<String> newFilter = bloomFilterTxManager.rebuild(createNewFilter());
         bloomFilterRef.set(newFilter);
         log.info("Bloom filter перестроен");
     }
-
-    private BloomFilter<String> createNewFilter() {
-        return BloomFilter.create(
-            Funnels.stringFunnel(StandardCharsets.UTF_8),
-            1_500_000,
-            0.0000001
-        );
-    }
 }
+
