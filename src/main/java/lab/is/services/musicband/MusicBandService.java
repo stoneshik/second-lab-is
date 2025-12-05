@@ -18,6 +18,7 @@ import lab.is.dto.responses.musicband.MusicBandResponseDto;
 import lab.is.dto.responses.musicband.WrapperListMusicBandResponseDto;
 import lab.is.repositories.MusicBandRepository;
 import lab.is.repositories.specifications.musicband.MusicBandSpecifications;
+import lab.is.services.insertion.bloomfilter.BloomFilterManager;
 import lab.is.util.musicband.MusicBandToDtoFromEntityMapper;
 import lab.is.util.musicband.MusicBandToEntityFromDtoCreateRequest;
 import lab.is.util.musicband.MusicBandToEntityFromDtoUpdateRequest;
@@ -29,6 +30,7 @@ public class MusicBandService {
     private final MusicBandRepository musicBandRepository;
     private final MusicBandTxService musicBandTxService;
     private final MusicBandNameUniquenessValidator musicBandNameUniquenessValidator;
+    private final BloomFilterManager bloomFilterManager;
     private final MusicBandSpecifications musicBandSpecifications;
     private final MusicBandToEntityFromDtoCreateRequest musicBandToEntityFromDtoCreateRequest;
     private final MusicBandToEntityFromDtoUpdateRequest musicBandToEntityFromDtoUpdateRequest;
@@ -78,17 +80,30 @@ public class MusicBandService {
 
     @Transactional
     public MusicBand create(MusicBandRequestCreateDto dto) {
-        musicBandNameUniquenessValidator.validate(dto.getName());
+        String name = dto.getName();
+        musicBandNameUniquenessValidator.validate(name);
         MusicBand musicBand = musicBandToEntityFromDtoCreateRequest.toEntityFromDto(dto);
         MusicBand savedMusicBand = musicBandRepository.save(musicBand);
         musicBandRepository.flush();
+        bloomFilterManager.put(name);
+        return savedMusicBand;
+    }
+
+    @Transactional
+    public MusicBand create(MusicBand musicBand) {
+        String name = musicBand.getName();
+        musicBandNameUniquenessValidator.validate(name);
+        MusicBand savedMusicBand = musicBandRepository.save(musicBand);
+        musicBandRepository.flush();
+        bloomFilterManager.put(name);
         return savedMusicBand;
     }
 
     @Transactional
     public MusicBand update(long id, MusicBandRequestUpdateDto dto) {
+        String name = dto.getName();
         MusicBand musicBand = musicBandTxService.findByIdReturnsEntity(id);
-        if (!musicBand.getName().equals(dto.getName())) {
+        if (!musicBand.getName().equals(name)) {
             musicBandNameUniquenessValidator.validate(dto.getName());
         }
         musicBand = musicBandToEntityFromDtoUpdateRequest.toEntityFromDto(
@@ -97,6 +112,9 @@ public class MusicBandService {
         );
         MusicBand savedMusicBand = musicBandRepository.save(musicBand);
         musicBandRepository.flush();
+        if (!musicBand.getName().equals(name)) {
+            bloomFilterManager.put(name);
+        }
         return savedMusicBand;
     }
 
