@@ -25,6 +25,7 @@ import lab.is.dto.responses.ErrorMessageResponseDto;
 import lab.is.exceptions.CsvParserException;
 import lab.is.exceptions.DuplicateNameException;
 import lab.is.exceptions.IncorrectDtoInRequestException;
+import lab.is.exceptions.MusicBandExistsException;
 import lab.is.exceptions.NestedObjectIsUsedException;
 import lab.is.exceptions.NestedObjectNotFoundException;
 import lab.is.exceptions.NotFoundException;
@@ -45,6 +46,15 @@ public class ExceptionHandlerController {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public ErrorMessageResponseDto handleException(NotFoundException e) {
+        return ErrorMessageResponseDto.builder()
+            .timestamp(new Date())
+            .message(e.getMessage())
+            .build();
+    }
+
+    @ExceptionHandler(MusicBandExistsException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessageResponseDto handleException(MusicBandExistsException e) {
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message(e.getMessage())

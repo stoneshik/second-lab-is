@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import lab.is.bd.entities.Album;
@@ -14,13 +15,17 @@ import lab.is.bd.entities.MusicBand;
 import lab.is.bd.entities.MusicGenre;
 import lab.is.bd.entities.Studio;
 import lab.is.exceptions.CsvParserException;
+import lab.is.exceptions.MusicBandExistsException;
+import lab.is.services.musicband.MusicBandService;
+import lombok.RequiredArgsConstructor;
 
+@Service
+@RequiredArgsConstructor
 public class CsvParser {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
+    private final MusicBandService musicBandService;
 
-    private CsvParser() {}
-
-    public static MusicBand convertRecordToEntity(
+    public MusicBand convertRecordToEntity(
         CSVRecord csvRecord,
         long recordNumber,
         InsertionHistory insertionHistory
@@ -40,7 +45,7 @@ public class CsvParser {
             .build();
     }
 
-    public static String validateAndGetName(CSVRecord csvRecord, long recordNumber, InsertionHistory insertionHistory) {
+    public String validateAndGetName(CSVRecord csvRecord, long recordNumber, InsertionHistory insertionHistory) {
         String name = csvRecord.get(InsertionHeaders.NAME.getName());
         if (!StringUtils.hasText(name) || name.isBlank()) {
             throw new CsvParserException(
@@ -56,10 +61,15 @@ public class CsvParser {
                 recordNumber
             );
         }
+        if (musicBandService.existsByName(name)) {
+            throw new MusicBandExistsException(
+                String.format("музыкальная группа с именем %s уже существует", name)
+            );
+        }
         return name;
     }
 
-    public static MusicGenre validateAndGetGenre(
+    public MusicGenre validateAndGetGenre(
         CSVRecord csvRecord,
         long recordNumber,
         InsertionHistory insertionHistory
@@ -81,7 +91,7 @@ public class CsvParser {
         return musicGenre;
     }
 
-    public static Long validateAndGetNumberOfParticipants(
+    public Long validateAndGetNumberOfParticipants(
         CSVRecord csvRecord,
         long recordNumber,
         InsertionHistory insertionHistory
@@ -109,7 +119,7 @@ public class CsvParser {
         }
     }
 
-    public static Long validateAndGetSinglesCount(
+    public Long validateAndGetSinglesCount(
         CSVRecord csvRecord,
         long recordNumber,
         InsertionHistory insertionHistory
@@ -140,7 +150,7 @@ public class CsvParser {
             );
         }
     }
-    public static Long validateAndGetAlbumsCount(
+    public Long validateAndGetAlbumsCount(
             CSVRecord csvRecord,
             long recordNumber,
             InsertionHistory insertionHistory
@@ -173,7 +183,7 @@ public class CsvParser {
     }
 
 
-    public static LocalDate validateAndGetEstablishmentDate(
+    public LocalDate validateAndGetEstablishmentDate(
         CSVRecord csvRecord,
         long recordNumber,
         InsertionHistory insertionHistory
@@ -197,7 +207,7 @@ public class CsvParser {
         }
     }
 
-    public static String validateAndGetDescription(
+    public String validateAndGetDescription(
         CSVRecord csvRecord,
         long recordNumber,
         InsertionHistory insertionHistory
@@ -216,7 +226,7 @@ public class CsvParser {
         return description;
     }
 
-    public static Coordinates validateAndGetCoordinates(
+    public Coordinates validateAndGetCoordinates(
         CSVRecord csvRecord,
         long recordNumber,
         InsertionHistory insertionHistory
@@ -246,7 +256,7 @@ public class CsvParser {
         }
     }
 
-    public static Studio validateAndGetStudio(
+    public Studio validateAndGetStudio(
         CSVRecord csvRecord,
         long recordNumber,
         InsertionHistory insertionHistory
@@ -283,7 +293,7 @@ public class CsvParser {
             .build();
     }
 
-    public static Album validateAndGetBestAlbum(
+    public Album validateAndGetBestAlbum(
         CSVRecord csvRecord,
         long recordNumber,
         InsertionHistory insertionHistory
