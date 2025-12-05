@@ -22,9 +22,9 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CsvInsertionService {
+    private static final int BATCH_SIZE = 100;
     @PersistenceContext
     private EntityManager entityManager;
-    private final CsvInsertionParserTxService csvInsertionParserTxService;
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Long insertCsv(InputStream csvStream, InsertionHistory insertionHistory) {
@@ -64,7 +64,7 @@ public class CsvInsertionService {
                     csvRecord.getRecordNumber(),
                     insertionHistory
                 );
-                csvInsertionParserTxService.createMusicBand(entityManager, musicBand, recordCount);
+                createMusicBand(entityManager, musicBand, recordCount);
             }
             entityManager.flush();
         } catch (CsvParserException e) {
@@ -73,5 +73,13 @@ public class CsvInsertionService {
             throw new CsvParserException("Импорт прерван на строке " + recordCount, insertionHistory);
         }
         return recordCount;
+    }
+
+    public void createMusicBand(EntityManager entityManager, MusicBand musicBand, long recordCount) {
+        entityManager.persist(musicBand);
+        if (recordCount % BATCH_SIZE == 0) {
+            entityManager.flush();
+            entityManager.clear();
+        }
     }
 }
