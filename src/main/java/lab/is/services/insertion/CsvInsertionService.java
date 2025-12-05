@@ -22,11 +22,11 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CsvInsertionService {
-    private static final int BATCH_SIZE = 100;
     @PersistenceContext
     private EntityManager entityManager;
+    private final CsvInsertionParserTxService csvInsertionParserTxService;
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Long insertCsv(InputStream csvStream, InsertionHistory insertionHistory) {
         String[] headers = {
             InsertionHeaders.NAME.getName(),
@@ -59,16 +59,12 @@ public class CsvInsertionService {
             ) {
             for (CSVRecord csvRecord: parser) {
                 recordCount++;
-                MusicBand band = CsvParser.convertRecordToEntity(
+                MusicBand musicBand = CsvParser.convertRecordToEntity(
                     csvRecord,
                     csvRecord.getRecordNumber(),
                     insertionHistory
                 );
-                entityManager.persist(band);
-                if (recordCount % BATCH_SIZE == 0) {
-                    entityManager.flush();
-                    entityManager.clear();
-                }
+                csvInsertionParserTxService.createMusicBand(entityManager, musicBand, recordCount);
             }
             entityManager.flush();
         } catch (CsvParserException e) {

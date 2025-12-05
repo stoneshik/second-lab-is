@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -14,6 +13,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lab.is.security.bd.entities.User;
+import lab.is.security.model.UserDetailsImpl;
 import lab.is.security.repositories.RefreshTokenRepository;
 import lab.is.security.services.UserDetailsServiceImpl;
 import lab.is.security.services.UserService;
@@ -33,8 +33,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                User user = userService.loadUserByLogin(userDetails.getUsername());
+                UserDetailsImpl userDetails = userDetailsService.loadUserByUsername(username);
+                User user = userService.loadUserById(userDetails.getId());
                 if (refreshTokenRepository.findRefreshTokenByUserId(user.getId()).isEmpty()) {
                     filterChain.doFilter(request, response);
                     return;
@@ -52,7 +52,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                     .setAuthentication(authentication);
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e);
+            filterChain.doFilter(request, response);
+            return;
         }
         filterChain.doFilter(request, response);
     }
