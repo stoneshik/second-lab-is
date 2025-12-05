@@ -22,6 +22,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lab.is.dto.responses.ErrorMessageResponseDto;
 import lab.is.exceptions.CsvParserException;
+import lab.is.exceptions.DuplicateNameException;
 import lab.is.exceptions.IncorrectDtoInRequestException;
 import lab.is.exceptions.NestedObjectIsUsedException;
 import lab.is.exceptions.NestedObjectNotFoundException;
@@ -70,6 +71,15 @@ public class ExceptionHandlerController {
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message("Превышен размер загружаемого файла")
+            .build();
+    }
+
+    @ExceptionHandler(DuplicateNameException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessageResponseDto handleException(DuplicateNameException e) {
+        return ErrorMessageResponseDto.builder()
+            .timestamp(new Date())
+            .message(e.getMessage())
             .build();
     }
 

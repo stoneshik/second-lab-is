@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class MusicBandService {
     private final MusicBandRepository musicBandRepository;
     private final MusicBandTxService musicBandTxService;
+    private final MusicBandNameUniquenessValidator musicBandNameUniquenessValidator;
     private final MusicBandSpecifications musicBandSpecifications;
     private final MusicBandToEntityFromDtoCreateRequest musicBandToEntityFromDtoCreateRequest;
     private final MusicBandToEntityFromDtoUpdateRequest musicBandToEntityFromDtoUpdateRequest;
@@ -77,6 +78,7 @@ public class MusicBandService {
 
     @Transactional
     public MusicBand create(MusicBandRequestCreateDto dto) {
+        musicBandNameUniquenessValidator.validate(dto.getName());
         MusicBand musicBand = musicBandToEntityFromDtoCreateRequest.toEntityFromDto(dto);
         MusicBand savedMusicBand = musicBandRepository.save(musicBand);
         musicBandRepository.flush();
@@ -86,6 +88,9 @@ public class MusicBandService {
     @Transactional
     public MusicBand update(long id, MusicBandRequestUpdateDto dto) {
         MusicBand musicBand = musicBandTxService.findByIdReturnsEntity(id);
+        if (!musicBand.getName().equals(dto.getName())) {
+            musicBandNameUniquenessValidator.validate(dto.getName());
+        }
         musicBand = musicBandToEntityFromDtoUpdateRequest.toEntityFromDto(
             dto,
             musicBand
