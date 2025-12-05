@@ -22,4 +22,9 @@ public class MusicBandTxService {
                     )
                 );
     }
+
+    @Transactional(readOnly = true)
+    public boolean existsByName(String name) {
+        return musicBandRepository.existsByName(name);
+    }
 }

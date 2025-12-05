@@ -22,9 +22,10 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CsvInsertionService {
-    private static final int BATCH_SIZE = 100;
+    private static final int BATCH_SIZE = 1000;
     @PersistenceContext
     private EntityManager entityManager;
+    private final CsvParser csvParser;
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public Long insertCsv(InputStream csvStream, InsertionHistory insertionHistory) {
@@ -59,7 +60,7 @@ public class CsvInsertionService {
             ) {
             for (CSVRecord csvRecord: parser) {
                 recordCount++;
-                MusicBand band = CsvParser.convertRecordToEntity(
+                MusicBand band = csvParser.convertRecordToEntity(
                     csvRecord,
                     csvRecord.getRecordNumber(),
                     insertionHistory
