@@ -104,7 +104,6 @@ public class ExceptionHandlerController {
         if (e.getRecordNumber() >= properties.getMaxRecordNumberForRebuildBloomFilter()) {
             bloomFilterManager.rebuild();
         }
-        bloomFilterManager.rebuild();
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message(e.getMessage())
