@@ -30,8 +30,8 @@ public class BloomFilterManager {
     private BloomFilter<String> createNewFilter() {
         return BloomFilter.create(
                 Funnels.stringFunnel(StandardCharsets.UTF_8),
-                1_500_000,
-                0.0000001
+                5_000_000,
+                0.000001
         );
     }
 

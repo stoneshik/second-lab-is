@@ -30,6 +30,7 @@ import lab.is.exceptions.NotFoundException;
 import lab.is.exceptions.ResourceIsAlreadyExistsException;
 import lab.is.exceptions.TokenRefreshException;
 import lab.is.exceptions.ValueOverflowException;
+import lab.is.services.insertion.bloomfilter.BloomFilterManager;
 import lab.is.services.insertion.history.InsertionHistoryService;
 import lombok.RequiredArgsConstructor;
 
@@ -37,6 +38,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ExceptionHandlerController {
     private final InsertionHistoryService insertionHistoryService;
+    private final BloomFilterManager bloomFilterManager;
+    private static final long MAX_RECORD_NUMBER_FOR_REBUILD_BLOOM_FILTER = 1000L;
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
@@ -87,6 +90,10 @@ public class ExceptionHandlerController {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorMessageResponseDto handleException(CsvParserException e) {
         insertionHistoryService.updateStatusToFailed(e.getInsertionHistory());
+        if (e.getRecordNumber() >= MAX_RECORD_NUMBER_FOR_REBUILD_BLOOM_FILTER) {
+            bloomFilterManager.rebuild();
+        }
+        bloomFilterManager.rebuild();
         return ErrorMessageResponseDto.builder()
             .timestamp(new Date())
             .message(e.getMessage())

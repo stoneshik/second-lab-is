@@ -42,12 +42,13 @@ public class InsertionController {
         } catch (RetryInsertException e) {
             throw new CsvParserException(
                 String.format("Ошибка при импорте данных: %s", e.getMessage()),
-                insertionHistory
+                insertionHistory,
+                0L
             );
         } catch (CsvParserException e) {
             throw e;
         } catch (Exception e) {
-            throw new CsvParserException("Ошибка при импорте данных", insertionHistory);
+            throw new CsvParserException("Ошибка при импорте данных", insertionHistory, 0L);
         }
     }
 }

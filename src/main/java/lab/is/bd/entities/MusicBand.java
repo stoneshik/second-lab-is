@@ -14,6 +14,7 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
@@ -33,7 +34,10 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "music_bands")
+@Table(
+    name = "music_bands",
+    indexes = @Index(name = "idx_music_band_name", columnList = "name", unique = false)
+)
 @Getter
 @Setter
 @NoArgsConstructor
