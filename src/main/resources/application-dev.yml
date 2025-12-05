@@ -15,14 +15,14 @@ spring:
     database-platform: "org.hibernate.dialect.PostgreSQLDialect"
     properties:
       hibernate:
-        '[jdbc.batch_size]': 100
+        '[jdbc.batch_size]': 10000
         '[order_inserts]': true
         '[order_updates]': true
         '[jdbc.batch_versioned_data]': true
         # Оптимизация для массовой вставки
         '[cache.use_second_level_cache]': false
         '[cache.use_query_cache]': false
-        '[jdbc.fetch_size]': 1000
+        '[jdbc.fetch_size]': 10000
       javax:
         persistence:
           validation:
@@ -34,3 +34,11 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: "ant_path_matcher"
+
+bloom-filter:
+  expected-insertions: 5000000
+  false-positive-probability: 0.000001
+
+batch-properties:
+  batch-size: 10000
+  max-record-number_for_rebuild_bloom_filter: 1000

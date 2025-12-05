@@ -20,6 +20,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lab.is.bd.entities.InsertionHistory;
 import lab.is.bd.entities.MusicBand;
+import lab.is.config.BatchProperties;
 import lab.is.exceptions.CsvParserException;
 import lab.is.exceptions.DuplicateNameException;
 import lab.is.services.insertion.bloomfilter.BloomFilterManager;
@@ -29,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CsvInsertionService {
-    private static final int BATCH_SIZE = 1000;
+    private final BatchProperties properties;
     @PersistenceContext
     private EntityManager entityManager;
     private final BloomFilterManager bloomFilterManager;
@@ -45,8 +46,8 @@ public class CsvInsertionService {
             .setTrim(true)
             .setNullString("")
             .get();
-        Set<String> batchNamesCache = new HashSet<>(BATCH_SIZE * 2);
-        List<MusicBand> batch = new ArrayList<>(BATCH_SIZE);
+        Set<String> batchNamesCache = new HashSet<>(properties.getBatchSize() * 2);
+        List<MusicBand> batch = new ArrayList<>(properties.getBatchSize());
         long recordCount = 0L;
         try (Reader reader = new InputStreamReader(csvStream, StandardCharsets.UTF_8);
             CSVParser parser = CSVParser.builder()
@@ -70,7 +71,7 @@ public class CsvInsertionService {
                 musicBandNameUniquenessValidator.validate(name);
                 batchNamesCache.add(name);
                 batch.add(musicBand);
-                if (batch.size() >= BATCH_SIZE) {
+                if (batch.size() >= properties.getBatchSize()) {
                     flushBatch(batch, batchNamesCache);
                     batch.clear();
                     batchNamesCache.clear();

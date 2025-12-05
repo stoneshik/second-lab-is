@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lab.is.config.BatchProperties;
 import lab.is.dto.responses.ErrorMessageResponseDto;
 import lab.is.exceptions.CsvParserException;
 import lab.is.exceptions.DuplicateNameException;
@@ -37,9 +38,9 @@ import lombok.RequiredArgsConstructor;
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class ExceptionHandlerController {
+    private final BatchProperties properties;
     private final InsertionHistoryService insertionHistoryService;
     private final BloomFilterManager bloomFilterManager;
-    private static final long MAX_RECORD_NUMBER_FOR_REBUILD_BLOOM_FILTER = 1000L;
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
@@ -90,7 +91,7 @@ public class ExceptionHandlerController {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorMessageResponseDto handleException(CsvParserException e) {
         insertionHistoryService.updateStatusToFailed(e.getInsertionHistory());
-        if (e.getRecordNumber() >= MAX_RECORD_NUMBER_FOR_REBUILD_BLOOM_FILTER) {
+        if (e.getRecordNumber() >= properties.getMaxRecordNumberForRebuildBloomFilter()) {
             bloomFilterManager.rebuild();
         }
         bloomFilterManager.rebuild();

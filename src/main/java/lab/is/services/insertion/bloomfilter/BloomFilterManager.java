@@ -9,29 +9,32 @@ import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 
 import jakarta.annotation.PostConstruct;
+import lab.is.config.BloomFilterProperties;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
 public class BloomFilterManager {
     private final BloomFilterTxManager bloomFilterTxManager;
-    private final AtomicReference<BloomFilter<String>> bloomFilterRef;
+    private final BloomFilterProperties properties;
+    private AtomicReference<BloomFilter<String>> bloomFilterRef;
 
-    public BloomFilterManager(BloomFilterTxManager bloomFilterTxManager) {
+    public BloomFilterManager(BloomFilterTxManager bloomFilterTxManager, BloomFilterProperties properties) {
         this.bloomFilterTxManager = bloomFilterTxManager;
-        this.bloomFilterRef = new AtomicReference<>(createNewFilter());
+        this.properties = properties;
     }
 
     @PostConstruct
     public void init() {
+        this.bloomFilterRef = new AtomicReference<>(createNewFilter());
         rebuild();
     }
 
     private BloomFilter<String> createNewFilter() {
         return BloomFilter.create(
                 Funnels.stringFunnel(StandardCharsets.UTF_8),
-                5_000_000,
-                0.000001
+                properties.getExpectedInsertions(),
+                properties.getFalsePositiveProbability()
         );
     }
 
