@@ -1,7 +1,5 @@
 package lab.is.controllers;
 
-import lab.is.exceptions.UserDoesNotHaveEnoughRightsException;
-import lab.is.security.model.UserDetailsImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lab.is.bd.entities.InsertionHistory;
 import lab.is.exceptions.CsvParserException;
+import lab.is.exceptions.RetryInsertException;
+import lab.is.exceptions.UserDoesNotHaveEnoughRightsException;
+import lab.is.security.model.UserDetailsImpl;
 import lab.is.services.insertion.CsvInsertionService;
 import lab.is.services.insertion.history.InsertionHistoryService;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,11 @@ public class InsertionController {
             Long numberObjects = insertionService.insertCsv(file.getInputStream(), insertionHistory);
             insertionHistoryService.updateStatusToSuccess(insertionHistory, numberObjects);
             return ResponseEntity.ok().build();
+        } catch (RetryInsertException e) {
+            throw new CsvParserException(
+                String.format("Ошибка при импорте данных: %s", e.getMessage()),
+                insertionHistory
+            );
         } catch (CsvParserException e) {
             throw e;
         } catch (Exception e) {
