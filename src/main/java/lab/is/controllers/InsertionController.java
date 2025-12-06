@@ -43,7 +43,7 @@ public class InsertionController {
             throw new CsvParserException(
                 e.getMessage(),
                 insertionHistory,
-                0L
+                e.getRecordCount()
             );
         } catch (CsvParserException e) {
             throw e;
