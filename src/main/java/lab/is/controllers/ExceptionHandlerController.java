@@ -30,6 +30,7 @@ import lab.is.exceptions.NestedObjectIsUsedException;
 import lab.is.exceptions.NestedObjectNotFoundException;
 import lab.is.exceptions.NotFoundException;
 import lab.is.exceptions.ResourceIsAlreadyExistsException;
+import lab.is.exceptions.RetryInsertException;
 import lab.is.exceptions.TokenRefreshException;
 import lab.is.exceptions.ValueOverflowException;
 import lab.is.services.insertion.bloomfilter.BloomFilterManager;
@@ -97,11 +98,20 @@ public class ExceptionHandlerController {
             .build();
     }
 
+    @ExceptionHandler(RetryInsertException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessageResponseDto handleException(RetryInsertException e) {
+        return ErrorMessageResponseDto.builder()
+                .timestamp(new Date())
+                .message(e.getMessage())
+                .build();
+    }
+
     @ExceptionHandler(CsvParserException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorMessageResponseDto handleException(CsvParserException e) {
         insertionHistoryService.updateStatusToFailed(e.getInsertionHistory());
-        if (e.getRecordNumber() >= properties.getMaxRecordNumberForRebuildBloomFilter()) {
+        if (e.getRecordCount() >= properties.getMaxRecordNumberForRebuildBloomFilter()) {
             bloomFilterManager.rebuild();
         }
         return ErrorMessageResponseDto.builder()

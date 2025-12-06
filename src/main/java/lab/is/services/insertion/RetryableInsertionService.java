@@ -1,17 +1,15 @@
 package lab.is.services.insertion;
 
 import java.io.InputStream;
+import java.sql.SQLException;
 
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionSystemException;
+import org.springframework.transaction.TransactionException;
 
-import jakarta.persistence.OptimisticLockException;
-import jakarta.persistence.PessimisticLockException;
+import jakarta.persistence.PersistenceException;
 import lab.is.bd.entities.InsertionHistory;
 import lab.is.exceptions.CsvParserException;
 import lab.is.exceptions.DuplicateNameException;
@@ -26,11 +24,11 @@ public class RetryableInsertionService {
 
     @Retryable(
         retryFor = {
-            OptimisticLockException.class,
-            PessimisticLockException.class,
-            PessimisticLockingFailureException.class,
-            DataIntegrityViolationException.class,
-            TransactionSystemException.class
+            RetryInsertException.class,
+            PersistenceException.class,
+            DataAccessException.class,
+            TransactionException.class,
+            SQLException.class,
         },
         noRetryFor = {
             CsvParserException.class,
@@ -41,12 +39,5 @@ public class RetryableInsertionService {
     )
     public Long insertWithRetry(InputStream csvStream, InsertionHistory history) {
         return insertionService.insertCsv(csvStream, history);
-    }
-
-    @Recover
-    public Long recoverInsertion(InputStream csvStream, InsertionHistory history) {
-        throw new RetryInsertException(
-            String.format("объект был изменен другим пользователем, вставка не удалась после %s попыток", MAX_RETRIES)
-        );
     }
 }

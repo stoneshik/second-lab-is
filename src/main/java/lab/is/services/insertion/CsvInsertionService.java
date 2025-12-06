@@ -12,23 +12,22 @@ import java.util.Set;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionSystemException;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.PessimisticLockException;
+import jakarta.persistence.PersistenceException;
 import lab.is.bd.entities.InsertionHistory;
 import lab.is.bd.entities.MusicBand;
 import lab.is.config.BatchProperties;
 import lab.is.exceptions.CsvParserException;
 import lab.is.exceptions.DuplicateNameException;
+import lab.is.exceptions.RetryInsertException;
 import lab.is.services.insertion.bloomfilter.BloomFilterManager;
 import lab.is.services.musicband.MusicBandNameUniquenessValidator;
 import lombok.RequiredArgsConstructor;
@@ -90,16 +89,19 @@ public class CsvInsertionService {
             }
         } catch (DuplicateNameException e) {
             throw new CsvParserException(
-                String.format("Импорт прерван на строке %s: %s", recordCount, e.getMessage()),
-                insertionHistory,
+                    String.format("Импорт прерван на строке %s: %s", recordCount, e.getMessage()),
+                    insertionHistory,
+                    recordCount
+            );
+        } catch (
+            PersistenceException |
+            DataAccessException |
+            TransactionException e) {
+            throw new RetryInsertException(
+                String.format("Импорт прерван на строке %s: объект был изменен другим пользователем", recordCount),
                 recordCount
             );
         } catch (
-            OptimisticLockException |
-            PessimisticLockException |
-            PessimisticLockingFailureException |
-            DataIntegrityViolationException |
-            TransactionSystemException |
             CsvParserException e
         ) {
             throw e;

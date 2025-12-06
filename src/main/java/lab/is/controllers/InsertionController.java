@@ -41,7 +41,7 @@ public class InsertionController {
             return ResponseEntity.ok().build();
         } catch (RetryInsertException e) {
             throw new CsvParserException(
-                String.format("Ошибка при импорте данных: %s", e.getMessage()),
+                e.getMessage(),
                 insertionHistory,
                 0L
             );

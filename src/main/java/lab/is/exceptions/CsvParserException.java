@@ -1,10 +1,12 @@
 package lab.is.exceptions;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import lab.is.bd.entities.InsertionHistory;
 
+@Getter
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class CsvParserException extends RuntimeException {
     private final transient InsertionHistory insertionHistory;
@@ -14,13 +16,5 @@ public class CsvParserException extends RuntimeException {
         super(message);
         this.insertionHistory = insertionHistory;
         this.recordCount = recordCount;
-    }
-
-    public InsertionHistory getInsertionHistory() {
-        return insertionHistory;
-    }
-
-    public long getRecordNumber() {
-        return recordCount;
     }
 }
