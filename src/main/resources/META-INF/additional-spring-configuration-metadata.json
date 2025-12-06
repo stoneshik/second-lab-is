@@ -1,0 +1,37 @@
+{"properties": [
+  {
+    "name": "bloom-filter.expected-insertions",
+    "type": "java.lang.String",
+    "description": "A description for 'bloom-filter.expected-insertions'"
+  },
+  {
+    "name": "bloom-filter.false-positive-probability",
+    "type": "java.lang.String",
+    "description": "A description for 'bloom-filter.false-positive-probability'"
+  },
+  {
+    "name": "batch-properties.batch-size",
+    "type": "java.lang.String",
+    "description": "A description for 'batch-properties.batch-size'"
+  },
+  {
+    "name": "batch-properties.max-record-number_for_rebuild_bloom_filter",
+    "type": "java.lang.String",
+    "description": "A description for 'batch-properties.max-record-number_for_rebuild_bloom_filter'"
+  },
+  {
+    "name": "token.secret_key",
+    "type": "java.lang.String",
+    "description": "A description for 'token.secret_key'"
+  },
+  {
+    "name": "token.expire_time",
+    "type": "java.lang.String",
+    "description": "A description for 'token.expire_time'"
+  },
+  {
+    "name": "token.refresh_time",
+    "type": "java.lang.String",
+    "description": "A description for 'token.refresh_time'"
+  }
+]}
