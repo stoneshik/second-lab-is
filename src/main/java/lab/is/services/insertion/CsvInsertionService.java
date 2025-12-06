@@ -12,12 +12,18 @@ import java.util.Set;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PessimisticLockException;
 import lab.is.bd.entities.InsertionHistory;
 import lab.is.bd.entities.MusicBand;
 import lab.is.config.BatchProperties;
@@ -38,7 +44,7 @@ public class CsvInsertionService {
     private final MusicBandNameUniquenessValidator musicBandNameUniquenessValidator;
     private final String[] headers = InsertionHeaders.getHeaders();
 
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     public Long insertCsv(InputStream csvStream, InsertionHistory insertionHistory) {
         CSVFormat format = CSVFormat.DEFAULT.builder()
             .setDelimiter(';')
@@ -70,16 +76,17 @@ public class CsvInsertionService {
                     );
                 }
                 musicBandNameUniquenessValidator.validate(name);
+                bloomFilterManager.put(name);
                 batchNamesCache.add(name);
                 batch.add(musicBand);
                 if (batch.size() >= properties.getBatchSize()) {
-                    flushBatch(batch, batchNamesCache);
+                    flushBatch(batch);
                     batch.clear();
                     batchNamesCache.clear();
                 }
             }
             if (!batch.isEmpty()) {
-                flushBatch(batch, batchNamesCache);
+                flushBatch(batch);
             }
         } catch (DuplicateNameException e) {
             throw new CsvParserException(
@@ -87,7 +94,14 @@ public class CsvInsertionService {
                 insertionHistory,
                 recordCount
             );
-        } catch (CsvParserException e) {
+        } catch (
+            OptimisticLockException |
+            PessimisticLockException |
+            PessimisticLockingFailureException |
+            DataIntegrityViolationException |
+            TransactionSystemException |
+            CsvParserException e
+        ) {
             throw e;
         } catch (Exception e) {
             throw new CsvParserException("Импорт прерван на строке " + recordCount, insertionHistory, recordCount);
@@ -95,12 +109,11 @@ public class CsvInsertionService {
         return recordCount;
     }
 
-    private void flushBatch(List<MusicBand> batch, Set<String> namesInBatch) {
+    private void flushBatch(List<MusicBand> batch) {
         for (MusicBand band : batch) {
             entityManager.persist(band);
         }
         entityManager.flush();
         entityManager.clear();
-        bloomFilterManager.putAll(namesInBatch);
     }
 }
