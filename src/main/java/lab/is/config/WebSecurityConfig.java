@@ -23,7 +23,7 @@ import lab.is.security.services.UserDetailsServiceImpl;
 import lab.is.security.services.UserService;
 import lombok.RequiredArgsConstructor;
 
-@Profile({"dev", "default"})
+@Profile({"dev", "helios", "default"})
 @Configuration
 @ComponentScan
 @EnableWebSecurity

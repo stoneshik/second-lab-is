@@ -19,7 +19,7 @@ import lab.is.dto.responses.insertion.history.WrapperListInsertionHistoriesRespo
 import lab.is.services.insertion.history.InsertionHistoryService;
 import lombok.RequiredArgsConstructor;
 
-@Profile({"dev", "default"})
+@Profile({"dev", "helios", "default"})
 @RestController
 @RequestMapping("/api/v1/insertion/histories")
 @RequiredArgsConstructor

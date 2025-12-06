@@ -23,7 +23,7 @@ spring:
         '[cache.use_second_level_cache]': false
         '[cache.use_query_cache]': false
         '[jdbc.fetch_size]': 10000
-      javax:
+      jakarta:
         persistence:
           validation:
             mode: "auto"
