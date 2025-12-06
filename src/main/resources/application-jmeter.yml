@@ -1,0 +1,44 @@
+server:
+  port: "${IS_SERVICE_PORT}"
+
+spring:
+  main:
+    banner-mode: "off"
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/is_jmeter"
+    username: "${IS_SERVICE_BD_USERNAME}"
+    password: "${IS_SERVICE_BD_PASSWORD}"
+    driver-class-name: "org.postgresql.Driver"
+  jpa:
+    generate-ddl: true
+    hibernate.ddl-auto: "create"
+    database-platform: "org.hibernate.dialect.PostgreSQLDialect"
+    properties:
+      hibernate:
+        '[jdbc.batch_size]': 10000
+        '[order_inserts]': true
+        '[order_updates]': true
+        '[jdbc.batch_versioned_data]': true
+        # Оптимизация для массовой вставки
+        '[cache.use_second_level_cache]': false
+        '[cache.use_query_cache]': false
+        '[jdbc.fetch_size]': 10000
+      jakarta:
+        persistence:
+          validation:
+            mode: "auto"
+  servlet:
+    multipart:
+      max-file-size: 250MB
+      max-request-size: 250MB
+  mvc:
+    pathmatch:
+      matching-strategy: "ant_path_matcher"
+
+bloom-filter:
+  expected-insertions: 5000000
+  false-positive-probability: 0.000001
+
+batch-properties:
+  batch-size: 10000
+  max-record-number_for_rebuild_bloom_filter: 1000

@@ -30,7 +30,7 @@ import lab.is.services.musicband.MusicBandService;
 import lombok.RequiredArgsConstructor;
 
 @Component
-@Profile({"dev", "helios"})
+@Profile({"dev", "helios", "jmeter"})
 @RequiredArgsConstructor
 public class DatabaseInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
