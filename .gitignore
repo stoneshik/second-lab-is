@@ -5,7 +5,7 @@ target/
 !**/src/test/**/target/
 **.docx**
 **.env
-megalarge.csv
+megalarge*.csv
 
 ### STS ###
 .apt_generated
