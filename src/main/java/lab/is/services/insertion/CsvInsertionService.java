@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
-import lab.is.bd.entities.InsertionHistory;
 import lab.is.bd.entities.MusicBand;
 import lab.is.config.BatchProperties;
 import lab.is.exceptions.CsvParserException;
@@ -44,7 +43,7 @@ public class CsvInsertionService {
     private final String[] headers = InsertionHeaders.getHeaders();
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
-    public Long insertCsv(InputStream csvStream, InsertionHistory insertionHistory) {
+    public Long insertCsv(InputStream csvStream, long insertionHistoryId) {
         CSVFormat format = CSVFormat.DEFAULT.builder()
             .setDelimiter(';')
             .setHeader(headers)
@@ -66,7 +65,7 @@ public class CsvInsertionService {
                 MusicBand musicBand = csvParser.convertRecordToEntity(
                     csvRecord,
                     csvRecord.getRecordNumber(),
-                    insertionHistory
+                    insertionHistoryId
                 );
                 String name = csvRecord.get(InsertionHeaders.NAME.getName());
                 if (batchNamesCache.contains(name)) {
@@ -90,7 +89,7 @@ public class CsvInsertionService {
         } catch (DuplicateNameException e) {
             throw new CsvParserException(
                     String.format("Импорт прерван на строке %s: %s", recordCount, e.getMessage()),
-                    insertionHistory,
+                    insertionHistoryId,
                     recordCount
             );
         } catch (
@@ -106,7 +105,7 @@ public class CsvInsertionService {
         ) {
             throw e;
         } catch (Exception e) {
-            throw new CsvParserException("Импорт прерван на строке " + recordCount, insertionHistory, recordCount);
+            throw new CsvParserException("Импорт прерван на строке " + recordCount, insertionHistoryId, recordCount);
         }
         return recordCount;
     }

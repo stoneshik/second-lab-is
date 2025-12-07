@@ -16,11 +16,11 @@ public class MusicBandTxService {
     @Transactional(readOnly = true)
     public MusicBand findByIdReturnsEntity(Long id) {
         return musicBandRepository.findById(id)
-                .orElseThrow(
-                    () -> new NestedObjectNotFoundException(
-                        String.format("Музыкальная группа с id: %s не найдена", id)
-                    )
-                );
+            .orElseThrow(
+                () -> new NestedObjectNotFoundException(
+                    String.format("Музыкальная группа с id: %s не найдена", id)
+                )
+            );
     }
 
     @Transactional(readOnly = true)

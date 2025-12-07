@@ -22,8 +22,14 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class InsertionHistoryService {
+    private final InsertionHistoryTxService insertionHistoryTxService;
     private final InsertionHistoryRepository insertionHistoryRepository;
     private final UserService userService;
+
+    @Transactional(readOnly = true)
+    public InsertionHistory findById(long id) {
+        return insertionHistoryTxService.findById(id);
+    }
 
     @Transactional(readOnly = true)
     public WrapperListInsertionHistoriesResponseDto findAll(Pageable pageable) {
@@ -67,7 +73,7 @@ public class InsertionHistoryService {
     }
 
     @Transactional
-    public InsertionHistory create(Long userId) {
+    public long create(Long userId) {
         User user = userService.loadUserById(userId);
         InsertionHistory insertionHistory = InsertionHistory.builder()
             .endDate(null)
@@ -76,11 +82,12 @@ public class InsertionHistoryService {
             .build();
         insertionHistoryRepository.save(insertionHistory);
         insertionHistoryRepository.flush();
-        return insertionHistory;
+        return insertionHistory.getId();
     }
 
     @Transactional
-    public InsertionHistory updateStatusToSuccess(InsertionHistory insertionHistory, Long numberObjects) {
+    public InsertionHistory updateStatusToSuccess(long insertionHistoryId, Long numberObjects) {
+        InsertionHistory insertionHistory = insertionHistoryTxService.findById(insertionHistoryId);
         InsertionHistory updatedInsertionHistory = insertionHistory.toBuilder()
             .endDate(LocalDateTime.now())
             .status(InsertionHistoryStatus.SUCCESS)
@@ -92,7 +99,8 @@ public class InsertionHistoryService {
     }
 
     @Transactional
-    public InsertionHistory updateStatusToFailed(InsertionHistory insertionHistory) {
+    public InsertionHistory updateStatusToFailed(long insertionHistoryId) {
+        InsertionHistory insertionHistory = insertionHistoryTxService.findById(insertionHistoryId);
         InsertionHistory updatedInsertionHistory = insertionHistory.toBuilder()
             .endDate(LocalDateTime.now())
             .status(InsertionHistoryStatus.FAILED)

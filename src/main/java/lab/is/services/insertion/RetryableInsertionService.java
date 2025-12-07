@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionException;
 
 import jakarta.persistence.PersistenceException;
-import lab.is.bd.entities.InsertionHistory;
 import lab.is.exceptions.CsvParserException;
 import lab.is.exceptions.DuplicateNameException;
 import lab.is.exceptions.RetryInsertException;
@@ -37,7 +36,7 @@ public class RetryableInsertionService {
         maxAttempts = MAX_RETRIES,
         backoff = @Backoff(delay = 100, multiplier = 2)
     )
-    public Long insertWithRetry(InputStream csvStream, InsertionHistory history) {
-        return insertionService.insertCsv(csvStream, history);
+    public Long insertWithRetry(InputStream csvStream, long insertionHistoryId) {
+        return insertionService.insertCsv(csvStream, insertionHistoryId);
     }
 }

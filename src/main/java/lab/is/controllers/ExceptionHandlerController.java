@@ -7,9 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,7 +40,9 @@ import lab.is.exceptions.ValueOverflowException;
 import lab.is.services.insertion.bloomfilter.BloomFilterManager;
 import lab.is.services.insertion.history.InsertionHistoryService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class ExceptionHandlerController {
@@ -108,10 +113,24 @@ public class ExceptionHandlerController {
                 .build();
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @ExceptionHandler(CannotAcquireLockException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessageResponseDto handleException(CannotAcquireLockException e) {
+        return ErrorMessageResponseDto.builder()
+                .timestamp(new Date())
+                .message(e.getMessage())
+                .build();
+    }
+
     @ExceptionHandler(CsvParserException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorMessageResponseDto handleException(CsvParserException e) {
-        insertionHistoryService.updateStatusToFailed(e.getInsertionHistory());
+        try {
+            insertionHistoryService.updateStatusToFailed(e.getInsertionHistoryId());
+        } catch (Exception updateHistoryException) {
+            log.warn("не получилось обновить статус истории вставки на failed");
+        }
         if (e.getRecordCount() >= properties.getMaxRecordNumberForRebuildBloomFilter()) {
             bloomFilterManager.rebuild();
         }
