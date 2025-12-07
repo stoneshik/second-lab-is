@@ -3,6 +3,7 @@ package lab.is.services.insertion.bloomfilter;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.hash.BloomFilter;
@@ -15,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class BloomFilterTxManager {
     private final EntityManager entityManager;
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public synchronized BloomFilter<String> rebuild(BloomFilter<String> newFilter) {
         int pageSize = 50000;
         int page = 0;
