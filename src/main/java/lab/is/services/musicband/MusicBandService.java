@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lab.is.bd.entities.Coordinates;
@@ -100,7 +101,7 @@ public class MusicBandService {
         return savedMusicBand;
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public MusicBand update(long id, MusicBandRequestUpdateDto dto) {
         String name = dto.getName();
         MusicBand musicBand = musicBandTxService.findByIdReturnsEntity(id);
