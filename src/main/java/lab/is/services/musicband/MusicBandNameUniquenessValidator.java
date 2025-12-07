@@ -31,6 +31,18 @@ public class MusicBandNameUniquenessValidator {
         }
     }
 
+    public void validateWithoutBloomFilter(String name) {
+        if (name == null || name.isBlank()) {
+            return;
+        }
+        boolean exists = checkInDatabaseWithLock(name);
+        if (exists) {
+            throw new DuplicateNameException(
+                "музыкальная группа с именем '" + name + "' уже существует"
+            );
+        }
+    }
+
     public boolean checkInDatabaseWithLock(String name) {
         return !entityManager.createQuery(
             "SELECT 1 FROM MusicBand m WHERE m.name = :name",

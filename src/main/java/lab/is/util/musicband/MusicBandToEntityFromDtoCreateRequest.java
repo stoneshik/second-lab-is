@@ -62,7 +62,7 @@ public class MusicBandToEntityFromDtoCreateRequest {
             .build();
     }
 
-    private boolean isCombinationInfoAboutNestedObjectsDtoIncorrect(
+    public boolean isCombinationInfoAboutNestedObjectsDtoIncorrect(
         CoordinatesCreateRequestDto coordinates,
         AlbumRequestCreateDto bestAlbum,
         StudioRequestCreateDto studio,
@@ -78,7 +78,7 @@ public class MusicBandToEntityFromDtoCreateRequest {
         );
     }
 
-    private Coordinates findOrCreateCoordinatesEntityByMusicBandDto(
+    public Coordinates findOrCreateCoordinatesEntityByMusicBandDto(
         CoordinatesCreateRequestDto dto,
         Long id
     ) {
@@ -91,7 +91,7 @@ public class MusicBandToEntityFromDtoCreateRequest {
         return coordinatesService.findByIdReturnsEntity(id);
     }
 
-    private Album findOrCreateBestAlbumEntityByMusicBandDto(
+    public Album findOrCreateBestAlbumEntityByMusicBandDto(
         AlbumRequestCreateDto dto,
         Long id
     ) {
@@ -105,7 +105,7 @@ public class MusicBandToEntityFromDtoCreateRequest {
         return albumService.findByIdReturnsEntity(id);
     }
 
-    private Studio extractOrCreateStudioEntityFromMusicBandDto(
+    public Studio extractOrCreateStudioEntityFromMusicBandDto(
         StudioRequestCreateDto dto,
         Long id
     ) {

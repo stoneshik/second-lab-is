@@ -92,7 +92,7 @@ public class StudioService {
         return studioTxService.findByIdReturnsEntity(id);
     }
 
-    private boolean isUsedNestedObject(Studio studio) {
+    public boolean isUsedNestedObject(Studio studio) {
         return !studio.getMusicBands().isEmpty();
     }
 }

@@ -1,5 +1,6 @@
 package lab.is.controllers;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -216,6 +217,15 @@ public class ExceptionHandlerController {
             .timestamp(new Date())
             .message("Переданы неправильные значения")
             .violations(errors)
+            .build();
+    }
+
+    @ExceptionHandler(SQLException.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorMessageResponseDto handleException(SQLException e) {
+        return ErrorMessageResponseDto.builder()
+            .timestamp(new Date())
+            .message("данные изменены другим пользователем")
             .build();
     }
 

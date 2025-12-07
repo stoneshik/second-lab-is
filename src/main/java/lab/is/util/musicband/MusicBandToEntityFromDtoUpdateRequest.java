@@ -12,6 +12,7 @@ import lab.is.dto.requests.coordinates.CoordinatesUpdateRequestDto;
 import lab.is.dto.requests.musicband.MusicBandRequestUpdateDto;
 import lab.is.dto.requests.studio.StudioRequestUpdateDto;
 import lab.is.exceptions.IncorrectDtoInRequestException;
+import lab.is.exceptions.NestedObjectNotFoundException;
 import lab.is.services.album.AlbumService;
 import lab.is.services.coordinates.CoordinatesService;
 import lab.is.services.studio.StudioService;
@@ -68,7 +69,7 @@ public class MusicBandToEntityFromDtoUpdateRequest {
             .build();
     }
 
-    private boolean isCombinationInfoAboutNestedObjectsDtoIncorrect(
+    public boolean isCombinationInfoAboutNestedObjectsDtoIncorrect(
         CoordinatesUpdateRequestDto coordinates,
         AlbumRequestUpdateDto bestAlbum,
         StudioRequestUpdateDto studio,
@@ -84,7 +85,7 @@ public class MusicBandToEntityFromDtoUpdateRequest {
         );
     }
 
-    private Coordinates createOrFindCoordinatesEntityByMusicBandDto(
+    public Coordinates createOrFindCoordinatesEntityByMusicBandDto(
         MusicBand foundMusicBand,
         CoordinatesUpdateRequestDto coordinatesDto,
         Long coordinatesId
@@ -95,7 +96,7 @@ public class MusicBandToEntityFromDtoUpdateRequest {
         return findCoordinatesEntityByMusicBandDto(foundMusicBand, coordinatesId);
     }
 
-    private Album createOrFindBestAlbumEntityByMusicBandDto(
+    public Album createOrFindBestAlbumEntityByMusicBandDto(
         MusicBand foundMusicBand,
         AlbumRequestUpdateDto albumDto,
         Long albumId
@@ -107,7 +108,7 @@ public class MusicBandToEntityFromDtoUpdateRequest {
         return findBestAlbumEntityByMusicBandDto(foundMusicBand, albumId);
     }
 
-    private Studio createOrFindStudioEntityByMusicBandDto(
+    public Studio createOrFindStudioEntityByMusicBandDto(
         MusicBand foundMusicBand,
         StudioRequestUpdateDto studioDto,
         Long studioId
@@ -119,7 +120,7 @@ public class MusicBandToEntityFromDtoUpdateRequest {
         return findStudioEntityByMusicBandDto(foundMusicBand, studioId);
     }
 
-    private Coordinates createCoordinatesEntityByMusicBandDto(
+    public Coordinates createCoordinatesEntityByMusicBandDto(
         MusicBand foundMusicBand,
         CoordinatesUpdateRequestDto coordinatesDto
     ) {
@@ -135,7 +136,7 @@ public class MusicBandToEntityFromDtoUpdateRequest {
         return createdCoordinates;
     }
 
-    private Coordinates findCoordinatesEntityByMusicBandDto(MusicBand foundMusicBand, Long coordinatesId) {
+    public Coordinates findCoordinatesEntityByMusicBandDto(MusicBand foundMusicBand, Long coordinatesId) {
         Coordinates foundMusicBandCoordinates = foundMusicBand.getCoordinates();
         Long foundMusicBandCoordinatesId = foundMusicBandCoordinates.getId();
 
@@ -150,7 +151,7 @@ public class MusicBandToEntityFromDtoUpdateRequest {
         return foundCoordinates;
     }
 
-    private Album createBestAlbumEntityByMusicBandDto(
+    public Album createBestAlbumEntityByMusicBandDto(
         MusicBand foundMusicBand,
         AlbumRequestUpdateDto albumDto
     ) {
@@ -166,7 +167,7 @@ public class MusicBandToEntityFromDtoUpdateRequest {
         return createdAlbum;
     }
 
-    private Album findBestAlbumEntityByMusicBandDto(MusicBand foundMusicBand, Long albumId) {
+    public Album findBestAlbumEntityByMusicBandDto(MusicBand foundMusicBand, Long albumId) {
         Album foundMusicBandBestAlbum = foundMusicBand.getBestAlbum();
         Long foundMusicBandAlbumId = foundMusicBandBestAlbum.getId();
 
@@ -181,7 +182,7 @@ public class MusicBandToEntityFromDtoUpdateRequest {
         return foundAlbum;
     }
 
-    private Studio createStudioEntityByMusicBandDto(
+    public Studio createStudioEntityByMusicBandDto(
         MusicBand foundMusicBand,
         StudioRequestUpdateDto studioDto
     ) {
@@ -197,7 +198,7 @@ public class MusicBandToEntityFromDtoUpdateRequest {
         return createdStudio;
     }
 
-    private Studio findStudioEntityByMusicBandDto(MusicBand foundMusicBand, Long studioId) {
+    public Studio findStudioEntityByMusicBandDto(MusicBand foundMusicBand, Long studioId) {
         Studio foundMusicBandStudio = foundMusicBand.getStudio();
         Long foundMusicBandStudioId = foundMusicBandStudio.getId();
 
@@ -212,29 +213,38 @@ public class MusicBandToEntityFromDtoUpdateRequest {
         return foundStudio;
     }
 
-    private void updateOneToManyConnection(
+    public void updateOneToManyConnection(
         MusicBand musicBand,
         Coordinates oldCoordinates,
         Coordinates newCoordinates
     ) {
+        if (oldCoordinates == null) {
+            throw new NestedObjectNotFoundException("Альбом не найден");
+        }
         oldCoordinates.removeMusicBand(musicBand);
         newCoordinates.addMusicBand(musicBand);
     }
 
-    private void updateOneToManyConnection(
+    public void updateOneToManyConnection(
         MusicBand musicBand,
         Album oldAlbum,
         Album newAlbum
     ) {
+        if (oldAlbum == null) {
+            return;
+        }
         oldAlbum.removeMusicBand(musicBand);
         newAlbum.addMusicBand(musicBand);
     }
 
-    private void updateOneToManyConnection(
+    public void updateOneToManyConnection(
         MusicBand musicBand,
         Studio oldStudio,
         Studio newStudio
     ) {
+        if (oldStudio == null) {
+            return;
+        }
         oldStudio.removeMusicBand(musicBand);
         newStudio.addMusicBand(musicBand);
     }
