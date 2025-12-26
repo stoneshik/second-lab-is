@@ -16,7 +16,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
@@ -42,7 +41,7 @@ public class CsvInsertionService {
     private final MusicBandNameUniquenessValidator musicBandNameUniquenessValidator;
     private final String[] headers = InsertionHeaders.getHeaders();
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Long insertCsv(InputStream csvStream, long insertionHistoryId) {
         CSVFormat format = CSVFormat.DEFAULT.builder()
             .setDelimiter(';')
